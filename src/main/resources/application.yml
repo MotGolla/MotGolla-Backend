@@ -5,6 +5,11 @@ spring:
     username: ${ORACLE_DB_USERNAME}
     password: ${ORACLE_DB_PASSWORD}
 
+  data:
+    redis:
+      host: redis
+      port: 6379
+
 server:
   port: 8080
 
@@ -28,3 +33,14 @@ cloud:
     credentials:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+  endpoint:
+    health:
+      show-details: always
+

@@ -1,0 +1,61 @@
+# docker-compose.yml
+# 이 파일은 motgolla-backend 애플리케이션과 Redis를 함께 배포하기 위한 Docker Compose 설정입니다.
+# Docker Compose는 이 파일을 사용하여 여러 컨테이너를 쉽게 정의하고 실행할 수 있습니다.
+
+version: '3.8' # Docker Compose 파일 형식 버전 지정 (최신 기능을 위해 3.8 이상 권장)
+
+# 애플리케이션을 구성하는 서비스들을 정의합니다.
+services:
+  # Redis 데이터베이스 서비스 정의
+  redis:
+    container_name: redis # 컨테이너 이름 지정
+    image: redis:latest   # 사용할 Redis 이미지 (최신 버전)
+    restart: unless-stopped # 컨테이너가 중지되지 않는 한 항상 재시작
+    ports:
+      - "6379:6379" # 호스트의 6379 포트를 컨테이너의 6379 포트에 연결
+    networks:
+      - motgolla-network # motgolla-network에 컨테이너 연결 (아래에서 정의)
+    healthcheck: # Redis 컨테이너 헬스 체크
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # motgolla-backend 애플리케이션 서비스 정의
+  motgolla-backend:
+    container_name: motgolla-backend # 컨테이너 이름 지정
+    # 이미지 이름은 환경 변수에서 가져오거나 직접 지정할 수 있습니다.
+    # DOCKER_USERNAME 환경 변수를 미리 정의하거나, .env 파일을 활용하세요.
+    image: ${DOCKER_USERNAME}/motgolla-backend:latest
+    restart: unless-stopped # 컨테이너가 중지되지 않는 한 항상 재시작
+    ports:
+      - "8080:8080" # 호스트의 8080 포트를 컨테이너의 8080 포트에 연결
+    networks:
+      - motgolla-network # motgolla-network에 컨테이너 연결
+    volumes:
+      # Oracle Wallet 파일을 위한 볼륨 마운트 (읽기 전용)
+      # 호스트의 /opt/oracle/wallet 경로를 컨테이너의 /app/wallet 경로에 연결
+      - /opt/oracle/wallet:/app/wallet:ro
+    environment: # 애플리케이션에 전달할 환경 변수들을 정의합니다.
+      ORACLE_DB_URL: ${ORACLE_DB_URL}
+      ORACLE_DB_USERNAME: ${ORACLE_DB_USERNAME}
+      ORACLE_DB_PASSWORD: ${ORACLE_DB_PASSWORD}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_REGION: ${AWS_REGION}
+      SWAGGER_SERVER: ${SWAGGER_SERVER}
+    depends_on:
+      - redis # motgolla-backend는 Redis가 시작된 후에 시작됩니다.
+    healthcheck: # 애플리케이션의 헬스 체크를 정의합니다.
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+# Docker 네트워크를 정의합니다.
+# Docker Compose는 이 네트워크를 자동으로 생성하고 관리합니다.
+networks:
+  motgolla-network:
+    driver: bridge # 기본 브릿지 드라이버 사용
