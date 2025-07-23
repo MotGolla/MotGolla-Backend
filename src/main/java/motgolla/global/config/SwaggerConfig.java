@@ -22,9 +22,9 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("ㅇㅇㅇ API")
+                        .title("MokGolla API")
                         .version("v0.0.1")
-                        .description("ㅇㅇㅇ API 명세서입니다."))
+                        .description("MokGolla API 명세서입니다."))
                 .servers(List.of(new Server().url(serverUrl).description("스웨거 서버")))
                 .components(new Components()
                         .addSecuritySchemes("Authorization", customSecurityScheme()))

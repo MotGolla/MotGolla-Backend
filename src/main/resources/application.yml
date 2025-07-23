@@ -13,5 +13,5 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
 
-toss:
-  secret-key : test_sk_PBal2vxj81JXGvDygdKJ35RQgOAN
+swagger:
+  server-url: http://localhost:8080
