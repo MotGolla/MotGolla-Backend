@@ -69,7 +69,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: "compose.yml"
-          target: "/home/ubuntu/app/compose.yml"
+          target: "/home/ubuntu/app"
 
       # EC2 접속 후 배포 실행
       - name: Deploy to EC2
