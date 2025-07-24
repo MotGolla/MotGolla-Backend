@@ -64,70 +64,66 @@ jobs:
           target: "/home/ubuntu/app" # EC2 인스턴스의 대상 디렉토리 (수정됨)
           script: |
             # EC2 인스턴스 내부에서 실행될 스크립트
+            # 애플리케이션 디렉토리가 없으면 생성합니다.
+            mkdir -p /home/ubuntu/app
+            cd /home/ubuntu/app
+            echo "Creating .env file with secrets..."
+            cat <<EOF > .env
+          DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+          ORACLE_DB_URL=${{ secrets.ORACLE_DB_URL }}
+          ORACLE_DB_USERNAME=${{ secrets.ORACLE_DB_USERNAME }}
+          ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}
+          AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+          AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
+          SWAGGER_SERVER=${{ secrets.SWAGGER_SERVER }}
+          EOF
+            echo ".env file created."
+            # Docker Compose를 사용하여 서비스 배포
+            # --pull: 항상 최신 이미지를 풀(pull)해옵니다.
+            # --force-recreate: 기존 컨테이너를 강제로 다시 생성합니다.
+            # -d: 백그라운드에서 실행합니다.
+            echo "Pulling latest Docker images..."
+            # 기존 컨테이너 중지 및 정리
+            docker-compose down --remove-orphans
+            docker-compose pull
+            echo "Starting Docker Compose services..."
+            docker-compose up -d --force-recreate  --build
 
-                        # 애플리케이션 디렉토리가 없으면 생성합니다.
-                        mkdir -p /home/ubuntu/app
-                        cd /home/ubuntu/app 
+            echo "=== Waiting for application startup ==="
+            sleep 20 # 애플리케이션 초기화 시간을 기다립니다.
 
-                        # .env 파일을 동적으로 생성하여 GitHub Secrets의 환경 변수를 주입합니다.
-                        echo "Creating .env file with secrets..."
-                        cat << EOF > .env
-                        DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-                        ORACLE_DB_URL=${{ secrets.ORACLE_DB_URL }}
-                        ORACLE_DB_USERNAME=${{ secrets.ORACLE_DB_USERNAME }}
-                        ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}
-                        AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
-                        AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
-                        AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
-                        AWS_REGION=${{ secrets.AWS_REGION }}
-                        SWAGGER_SERVER=${{ secrets.SWAGGER_SERVER }}
-                        EOF
-                        echo ".env file created."
+            # 실행 중인 컨테이너 상태 확인
+            echo "=== Container Status ==="
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-                        # Docker Compose를 사용하여 서비스 배포
-                        # --pull: 항상 최신 이미지를 풀(pull)해옵니다.
-                        # --force-recreate: 기존 컨테이너를 강제로 다시 생성합니다.
-                        # -d: 백그라운드에서 실행합니다.
-                        echo "Pulling latest Docker images..."
-                        # 기존 컨테이너 중지 및 정리
-                        docker-compose down --remove-orphans
-                        docker-compose pull
-                        echo "Starting Docker Compose services..."
-                        docker-compose up -d --force-recreate  --build
+            # 애플리케이션 로그 (최근 10줄)
+            echo "=== Application Logs ==="
+            docker logs --tail 10 motgolla-backend
 
-                        echo "=== Waiting for application startup ==="
-                        sleep 20 # 애플리케이션 초기화 시간을 기다립니다.
+            # 헬스 체크
+            echo "=== Health Check ==="
+            for i in {1..5}; do
+              # 백엔드 애플리케이션의 헬스 체크 포트가 8080이므로 localhost:8080으로 변경
+              if curl -f -s http://localhost:8080/actuator/health > /dev/null; then
+                echo "Health check passed"
+                break
+              else
+                echo "Health check attempt $i/5 failed, retrying..."
+                sleep 3
+              fi
 
-                        # 실행 중인 컨테이너 상태 확인
-                        echo "=== Container Status ==="
-                        docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+              # 5번 시도 후에도 실패 시 로그 출력 후 배포 실패 처리
+              if [ $i -eq 5 ]; then
+                echo "Health check failed after 5 attempts"
+                echo "=== Error Logs ==="
+                docker logs --tail 20 motgolla-backend
+                exit 1
+              fi
+            done
 
-                        # 애플리케이션 로그 (최근 10줄)
-                        echo "=== Application Logs ==="
-                        docker logs --tail 10 motgolla-backend
+            # 오래된 사용되지 않는 Docker 이미지 정리
+            docker image prune -f
 
-                        # 헬스 체크
-                        echo "=== Health Check ==="
-                        for i in {1..5}; do
-                          # 백엔드 애플리케이션의 헬스 체크 포트가 8080이므로 localhost:8080으로 변경
-                          if curl -f -s http://localhost:8080/actuator/health > /dev/null; then
-                            echo "Health check passed"
-                            break
-                          else
-                            echo "Health check attempt $i/5 failed, retrying..."
-                            sleep 3
-                          fi
-
-                          # 5번 시도 후에도 실패 시 로그 출력 후 배포 실패 처리
-                          if [ $i -eq 5 ]; then
-                            echo "Health check failed after 5 attempts"
-                            echo "=== Error Logs ==="
-                            docker logs --tail 20 motgolla-backend
-                            exit 1
-                          fi
-                        done
-
-                        # 오래된 사용되지 않는 Docker 이미지 정리
-                        docker image prune -f
-
-                        echo "Deployment completed successfully"
+            echo "Deployment completed successfully"
