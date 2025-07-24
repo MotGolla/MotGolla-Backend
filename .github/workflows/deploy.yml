@@ -70,7 +70,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }} # EC2 인스턴스 사용자 이름 (예: ubuntu) (GitHub Secrets)
           key: ${{ secrets.EC2_PRIVATE_KEY }} # EC2 SSH 프라이빗 키 (GitHub Secrets)
           # 파일 복사를 위한 source 및 target 파라미터 수정
-          source: "docker-compose.yml" # GitHub Actions 러너의 현재 디렉토리에서 docker-compose.yml 파일
+          source: "compose.yml" # GitHub Actions 러너의 현재 디렉토리에서 compose.yml 파일
           target: "/home/ubuntu/app" # EC2 인스턴스의 대상 디렉토리 (수정됨)
           script: |
             # EC2 인스턴스 내부에서 실행될 스크립트
@@ -96,10 +96,10 @@ jobs:
             # -d: 백그라운드에서 실행합니다.
             echo "Pulling latest Docker images..."
             # 기존 컨테이너 중지 및 정리
-            docker-compose down --remove-orphans
-            docker-compose pull
+            docker compose down --remove-orphans
+            docker compose pull
             echo "Starting Docker Compose services..."
-            docker-compose up -d --force-recreate  --build
+            docker compose up -d --force-recreate  --build
 
             echo "=== Waiting for application startup ==="
             sleep 20 # 애플리케이션 초기화 시간을 기다립니다.
