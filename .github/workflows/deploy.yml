@@ -93,7 +93,7 @@ jobs:
                         docker-compose down --remove-orphans
                         docker-compose pull
                         echo "Starting Docker Compose services..."
-                        docker-compose up -d --force-recreate
+                        docker-compose up -d --force-recreate  --build
 
                         echo "=== Waiting for application startup ==="
                         sleep 20 # 애플리케이션 초기화 시간을 기다립니다.
