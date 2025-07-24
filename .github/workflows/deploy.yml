@@ -62,6 +62,15 @@ jobs:
           # 빌드된 이미지를 Docker Hub에 푸시합니다.
           docker push ${{ secrets.DOCKER_USERNAME }}/motgolla-backend:latest
 
+      - name: Copy compose.yml to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: "compose.yml"
+          target: "/home/ubuntu/app/compose.yml"
+
       # EC2 접속 후 배포 실행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1 # SSH를 통해 원격 서버에 명령을 실행하는 액션 사용
@@ -70,8 +79,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }} # EC2 인스턴스 사용자 이름 (예: ubuntu) (GitHub Secrets)
           key: ${{ secrets.EC2_PRIVATE_KEY }} # EC2 SSH 프라이빗 키 (GitHub Secrets)
           # 파일 복사를 위한 source 및 target 파라미터 수정
-          source: "compose.yml" # GitHub Actions 러너의 현재 디렉토리에서 compose.yml 파일
-          target: "/home/ubuntu/app" # EC2 인스턴스의 대상 디렉토리 (수정됨)
           script: |
             # EC2 인스턴스 내부에서 실행될 스크립트
             # 애플리케이션 디렉토리가 없으면 생성합니다.
@@ -95,11 +102,11 @@ jobs:
             # --force-recreate: 기존 컨테이너를 강제로 다시 생성합니다.
             # -d: 백그라운드에서 실행합니다.
             echo "Pulling latest Docker images..."
-            # 기존 컨테이너 중지 및 정리
-            docker compose down --remove-orphans
-            docker compose pull
+            docker compose -f compose.yml down --remove-orphans
+            docker compose -f compose.yml pull
+
             echo "Starting Docker Compose services..."
-            docker compose up -d --force-recreate  --build
+            docker compose -f compose.yml up -d --force-recreate --build
 
             echo "=== Waiting for application startup ==="
             sleep 20 # 애플리케이션 초기화 시간을 기다립니다.
