@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="motgolla.domain.member.mapper.MemberMapper">
+    <!-- 회원 저장 -->
+    <insert id="insertMember">
+        <selectKey keyProperty="request.id" resultType="long" order="BEFORE">
+            SELECT MEMBER_SEQ.NEXTVAL AS id FROM dual
+        </selectKey>
+        INSERT INTO MEMBER (
+            ID,
+            NAME,
+            OAUTH_ID,
+            BIRTHDAY,
+            GENDER,
+            CREATED_AT,
+            UPDATED_AT
+        ) VALUES (
+            #{request.id},
+            #{request.name},
+            #{request.oauthId},
+            #{request.birthday},
+            #{request.gender},
+            SYSDATE,
+            SYSDATE
+        )
+    </insert>
+
+    <!-- ID로 회원 조회 -->
+    <select id="findById" resultType="motgolla.domain.member.vo.Member" parameterType="long">
+        SELECT
+        ID,
+        NAME,
+        PROFILE,
+        OAUTH_ID,
+        BIRTHDAY,
+        GENDER,
+        CREATED_AT,
+        CREATED_BY,
+        UPDATED_AT,
+        UPDATED_BY,
+        ISDELETED
+        FROM MEMBER
+        WHERE ID = #{id}
+    </select>
+
+    <!-- OAUTH_ID로 회원 조회 -->
+    <select id="findByOauthId" resultType="motgolla.domain.member.vo.Member" parameterType="string">
+        SELECT
+        ID,
+        NAME,
+        PROFILE,
+        OAUTH_ID,
+        BIRTHDAY,
+        GENDER,
+        CREATED_AT,
+        CREATED_BY,
+        UPDATED_AT,
+        UPDATED_BY,
+        ISDELETED
+        FROM MEMBER
+        WHERE OAUTH_ID = #{oauthId}
+    </select>
+</mapper>
