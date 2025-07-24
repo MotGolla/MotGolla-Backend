@@ -8,7 +8,18 @@ public enum ErrorCode {
     /* COMMON ERROR */
     INTERNAL_SERVER_ERROR(500, "COMMON001", "Internal Server Error"),
     INVALID_INPUT_VALUE(400, "COMMON002", "Invalid Input Value"),
-    ENTITY_NOT_FOUND(400, "COMMON003", "Entity Not Found");
+    ENTITY_NOT_FOUND(400, "COMMON003", "Entity Not Found"),
+
+    /* AUTH ERROR */
+    INVALID_ACCESS_TOKEN(401, "AUTH001", "Invalid Access Token"),
+    INVALID_REFRESH_TOKEN(401, "AUTH002", "Invalid Refresh Token"),
+    LOGIN_FAILED(400, "AUTH003", "Login Failed"),
+    INVALID_ID_TOKEN(400, "AUTH004", "Invalid ID Token"),
+
+    /* MEMBER ERROR */
+    MEMBER_NOT_FOUND(404, "MEMBER001", "Member Not Found"),
+    DUPLICATED_MEMBER(400, "MEMBER002", "Duplicated Member");
+
 
     private final int status;
     private final String code;
