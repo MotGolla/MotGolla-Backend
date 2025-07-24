@@ -37,8 +37,10 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     // 오라클 JDBC
-    runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
-
+    runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
+    implementation 'com.oracle.database.security:oraclepki:21.9.0.0'
+    implementation 'com.oracle.database.security:osdt_core:21.9.0.0'
+    implementation 'com.oracle.database.security:osdt_cert:21.9.0.0'
     // Lombok
     annotationProcessor 'org.projectlombok:lombok'
 
