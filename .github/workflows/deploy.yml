@@ -78,6 +78,8 @@ jobs:
             mkdir -p /home/ubuntu/app
             cd /home/ubuntu/app
             echo "Creating .env file with secrets..."
+            # 기존 .env 파일이 존재하면 삭제
+            [ -f .env ] && rm .env
             echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" > .env
             echo "ORACLE_DB_URL=${{ secrets.ORACLE_DB_URL }}" >> .env
             echo "ORACLE_DB_USERNAME=${{ secrets.ORACLE_DB_USERNAME }}" >> .env
