@@ -12,6 +12,16 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest # 이 작업은 최신 Ubuntu 러너에서 실행됩니다.
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      ORACLE_DB_URL: ${{ secrets.ORACLE_DB_URL }}
+      ORACLE_DB_USERNAME: ${{ secrets.ORACLE_DB_USERNAME }}
+      ORACLE_DB_PASSWORD: ${{ secrets.ORACLE_DB_PASSWORD }}
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      SWAGGER_SERVER: ${{ secrets.SWAGGER_SERVER }}
     permissions:
       contents: read # 리포지토리 콘텐츠에 대한 읽기 권한 부여
 
@@ -68,17 +78,15 @@ jobs:
             mkdir -p /home/ubuntu/app
             cd /home/ubuntu/app
             echo "Creating .env file with secrets..."
-            cat <<EOF > .env
-          DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-          ORACLE_DB_URL=${{ secrets.ORACLE_DB_URL }}
-          ORACLE_DB_USERNAME=${{ secrets.ORACLE_DB_USERNAME }}
-          ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}
-          AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
-          AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
-          AWS_REGION=${{ secrets.AWS_REGION }}
-          SWAGGER_SERVER=${{ secrets.SWAGGER_SERVER }}
-          EOF
+            echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" > .env
+            echo "ORACLE_DB_URL=${{ secrets.ORACLE_DB_URL }}" >> .env
+            echo "ORACLE_DB_USERNAME=${{ secrets.ORACLE_DB_USERNAME }}" >> .env
+            echo "ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}" >> .env
+            echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
+            echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
+            echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env
+            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+            echo "SWAGGER_SERVER=${{ secrets.SWAGGER_SERVER }}" >> .env
             echo ".env file created."
             # Docker Compose를 사용하여 서비스 배포
             # --pull: 항상 최신 이미지를 풀(pull)해옵니다.
