@@ -25,22 +25,46 @@ repositories {
 }
 
 dependencies {
+    // 필수 라이브러리
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // MyBatis 연동
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+
+    // 개발 편의 및 코드 자동 생성
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // 오라클 JDBC
     runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
+
+    // Lombok
     annotationProcessor 'org.projectlombok:lombok'
+
+    // 테스트 라이브러리
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
 
-    // Swagger
+    // Swagger(OpenAPI) 문서
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
+
+    // AWS S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+
+    // health
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// jar name = app.jar
+tasks.named('bootJar') {
+    archiveFileName = 'app.jar'
 }
