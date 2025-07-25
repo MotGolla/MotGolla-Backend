@@ -32,7 +32,7 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
 
     private static final String HTTP_METHOD = "POST";
     private static final String CONTENT_TYPE = "application/json";
-    private static final String OAuth_ID_KEY = "oauthId";
+    private static final String OAUTH_ID_KEY = "oauthId";
     private static final AntPathRequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER =
             new AntPathRequestMatcher(LOGIN_URL, HTTP_METHOD); // 로그인 요청
 
@@ -59,13 +59,15 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
      */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+        log.info("CustomJsonUsernamePasswordAuthenticationFilter 진입");
+
         if(request.getContentType() == null || !request.getContentType().startsWith(CONTENT_TYPE)) {
             throw new AuthenticationServiceException("Authentication Content-Type not supported: " + request.getContentType());
         }
 
         String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
         Map<String, String> loginDataMap = objectMapper.readValue(messageBody, Map.class);
-        String oauthId = loginDataMap.get(OAuth_ID_KEY);
+        String oauthId = loginDataMap.get(OAUTH_ID_KEY);
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(oauthId, "");
 

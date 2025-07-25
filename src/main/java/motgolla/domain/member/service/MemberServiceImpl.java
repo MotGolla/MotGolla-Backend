@@ -41,6 +41,7 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public TokenResponse login(Member member) {
+		log.info("[로그인 요청] member = {}", member.getId());
 		return jwtProvider.provideAccessTokenAndRefreshToken(member);
 	}
 
