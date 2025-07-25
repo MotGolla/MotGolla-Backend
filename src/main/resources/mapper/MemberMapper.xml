@@ -63,4 +63,8 @@
         FROM MEMBER
         WHERE OAUTH_ID = #{oauthId}
     </select>
+
+    <update id="updateIsDeleted" parameterType="long">
+        UPDATE MEMBER SET ISDELETED = 1 WHERE ID = #{id}
+    </update>
 </mapper>

@@ -13,9 +13,11 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
 import motgolla.global.error.ErrorCode;
 import motgolla.global.error.exception.BusinessException;
 
+@Slf4j
 @Service
 public class OidcService {
 
@@ -48,6 +50,7 @@ public class OidcService {
 			return claimsSet.getClaims();
 
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 			throw new RuntimeException("idToken 검증 실패", e);
 		}
 	}

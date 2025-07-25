@@ -2,6 +2,7 @@ package motgolla.domain.member.service;
 
 import motgolla.domain.member.dto.request.LoginRequest;
 import motgolla.domain.member.dto.request.SignUpRequest;
+import motgolla.domain.member.dto.response.MemberInfoResponse;
 import motgolla.domain.member.dto.response.TokenResponse;
 import motgolla.domain.member.vo.Member;
 

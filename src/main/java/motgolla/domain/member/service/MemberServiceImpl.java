@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import motgolla.domain.member.dto.request.LoginRequest;
 import motgolla.domain.member.dto.request.SignUpRequest;
+import motgolla.domain.member.dto.response.MemberInfoResponse;
 import motgolla.domain.member.dto.response.TokenResponse;
 import motgolla.domain.member.mapper.MemberMapper;
 import motgolla.domain.member.vo.Member;
@@ -15,6 +16,7 @@ import motgolla.global.auth.jwt.JwtProvider;
 import motgolla.global.auth.login.OidcService;
 import motgolla.global.error.ErrorCode;
 import motgolla.global.error.exception.BusinessException;
+import motgolla.global.util.HashUtil;
 
 @Slf4j
 @Service
@@ -23,9 +25,11 @@ public class MemberServiceImpl implements MemberService {
 	private final MemberMapper memberMapper;
 	private final JwtProvider jwtProvider;
 	private final OidcService oidcService;
+	private final HashUtil hashUtil;
 
 	@Override
 	public TokenResponse createDevelopAccount(SignUpRequest signUpRequest) {
+		signUpRequest.setOauthId(hashUtil.hash(signUpRequest.getOauthId()));
 		memberMapper.insertMember(signUpRequest);
 		Member member = memberMapper.findById(signUpRequest.getId()).get();
 
@@ -62,5 +66,6 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void resign(Member member) {
 		// 논리적 삭제
+		memberMapper.updateIsDeleted(member.getId());
 	}
 }
