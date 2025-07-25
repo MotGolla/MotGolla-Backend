@@ -87,6 +87,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             Long memberId = jwtProvider.extractMemberId(refreshToken)
                 .orElseThrow(() -> new InvalidTokenException(ErrorCode.INVALID_REFRESH_TOKEN));
 
+            log.info("[reissueToken] memberId = {}", memberId);
             Member member = memberMapper.findById(memberId)
                 .orElseThrow(() -> new InvalidTokenException(ErrorCode.INVALID_REFRESH_TOKEN));
 
