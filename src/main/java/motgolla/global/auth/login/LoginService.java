@@ -33,12 +33,11 @@ public class LoginService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String oauthId) throws UsernameNotFoundException {
         log.info("loadUserByUsername 진입");
+        log.info("oauthId: {}", oauthId);
         String hashedOauthId = hashUtil.hash(oauthId);
-         Member member = memberMapper.findByOauthId(hashedOauthId)
+         return memberMapper.findByOauthId(hashedOauthId)
              .filter(m -> m.getIsDeleted() == 0)
                 .orElseThrow(() -> new UsernameNotFoundException("로그인에 실패했습니다."));
-
-        return member;
     }
 
 }

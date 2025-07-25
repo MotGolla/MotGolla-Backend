@@ -11,7 +11,7 @@ import motgolla.domain.member.vo.Member;
 @Mapper
 public interface MemberMapper {
 	void insertMember(@Param("request") SignUpRequest signUpRequest);
-	void deleteMember(Member member);
+	void updateIsDeleted(Long id);
 	Optional<Member> findById(Long id);
 	Optional<Member> findByOauthId(String oauthId);
 }

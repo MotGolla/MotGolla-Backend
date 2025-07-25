@@ -13,16 +13,18 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
 import motgolla.global.error.ErrorCode;
 import motgolla.global.error.exception.BusinessException;
 
+@Slf4j
 @Service
 public class OidcService {
 
 	private static final String KAKAO_JWKS_URI = "https://kauth.kakao.com/.well-known/jwks.json";
 	private static final String KAKAO_ISSUER = "https://kauth.kakao.com";
 
-	@Value("${kakao.rest-api-key}")
+	@Value("${kakao.api-key}")
 	private String CLIENT_ID; // OIDC client_id
 
 	public Map<String, Object> verify(String idToken) {
@@ -48,6 +50,7 @@ public class OidcService {
 			return claimsSet.getClaims();
 
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 			throw new RuntimeException("idToken 검증 실패", e);
 		}
 	}

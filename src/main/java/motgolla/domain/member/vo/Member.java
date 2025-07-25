@@ -6,6 +6,8 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
+import motgolla.domain.member.dto.response.MemberInfoResponse;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -62,4 +64,8 @@ public class Member implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+	public MemberInfoResponse toDto(){
+		return new MemberInfoResponse(id, name, birthday, gender, profile, createdAt);
+	}
 }
