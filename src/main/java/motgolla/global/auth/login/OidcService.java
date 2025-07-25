@@ -24,7 +24,7 @@ public class OidcService {
 	private static final String KAKAO_JWKS_URI = "https://kauth.kakao.com/.well-known/jwks.json";
 	private static final String KAKAO_ISSUER = "https://kauth.kakao.com";
 
-	@Value("${kakao.rest-api-key}")
+	@Value("${kakao.api-key}")
 	private String CLIENT_ID; // OIDC client_id
 
 	public Map<String, Object> verify(String idToken) {
