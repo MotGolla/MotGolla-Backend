@@ -22,6 +22,7 @@ import motgolla.global.auth.login.CustomAuthenticationProvider;
 import motgolla.global.auth.login.CustomJsonUsernamePasswordAuthenticationFilter;
 import motgolla.global.auth.login.LoginFailureHandler;
 import motgolla.global.auth.login.LoginService;
+import motgolla.global.auth.login.LoginSuccessHandler;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -102,7 +103,16 @@ public class SecurityConfig {
                 = new CustomJsonUsernamePasswordAuthenticationFilter(objectMapper);
         customJsonUsernamePasswordLoginFilter.setAuthenticationManager(authenticationManager());
         customJsonUsernamePasswordLoginFilter.setAuthenticationFailureHandler(loginFailureHandler());
+        customJsonUsernamePasswordLoginFilter.setAuthenticationSuccessHandler(loginSuccessHandler());
         return customJsonUsernamePasswordLoginFilter;
+    }
+
+    /**
+     * 로그인 성공 시 호출되는 LoginSuccessJWTProviderHandler 빈 등록
+     */
+    @Bean
+    public LoginSuccessHandler loginSuccessHandler() {
+        return new LoginSuccessHandler(jwtProvider, memberMapper);
     }
 
     @Bean

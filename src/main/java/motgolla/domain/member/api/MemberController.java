@@ -34,12 +34,6 @@ public class MemberController {
 		return ResponseEntity.ok().body(response);
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<TokenResponse> login(@AuthenticationPrincipal Member member) {
-		TokenResponse response = memberService.login(member);
-		return ResponseEntity.ok().body(response);
-	}
-
 	@PostMapping("/sign-up")
 	public ResponseEntity<TokenResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
 		TokenResponse response = memberService.signUp(signUpRequest);
