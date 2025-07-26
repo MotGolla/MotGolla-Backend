@@ -3,17 +3,12 @@ package motgolla.global.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.springframework.stereotype.Component;
-
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
-@RequiredArgsConstructor
-public class HashUtil {
+public final class HashUtil {
 
-    public String hash(String input) {
+    public static String hash(String input) {
         try {
             // MessageDigest 인스턴스를 SHA-256 알고리즘으로 초기화
             MessageDigest instance = MessageDigest.getInstance("SHA-256");
