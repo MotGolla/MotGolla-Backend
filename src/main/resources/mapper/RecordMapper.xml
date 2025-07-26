@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="motgolla.domain.record.mapper.RecordMapper">
+
+  <!-- 현재 백화점 이름으로 ID 조회 -->
+  <select id="findDepartmentStoreByName" resultType="java.lang.Long">
+    SELECT ID
+    FROM DEPARTMENT_STORE
+    WHERE STORE_NAME = #{name}
+  </select>
+
+  <select id="findBarcodeScanInfo"
+    resultType="motgolla.domain.record.dto.ProductToBarcodeScanDto">
+    SELECT
+    B.BRAND_NAME AS brand,
+    P.ID AS productId,
+    P.NAME AS productName,
+    P.PRODUCT_NUMBER AS productNumber
+    FROM PRODUCT P
+    JOIN BRAND B ON P.BRAND_ID = B.ID
+    WHERE P.BARCODE_NUMBER = #{barcode}
+  </select>
+
+  <select id="findDepartmentStoreBrand"
+    resultType="java.lang.Long">
+    SELECT DSB.ID
+    FROM DEPARTMENT_STORE_BRAND DSB
+    JOIN BRAND B ON DSB.BRAND_ID = B.ID
+    WHERE B.BRAND_NAME = #{brand}
+    AND DSB.DEPARTMENT_STORE_ID = #{departmentStoreId}
+  </select>
+
+  <insert id="insertRecord">
+    <selectKey keyProperty="request.id" resultType="long" order="BEFORE">
+      SELECT RECORD_SEQ.NEXTVAL FROM DUAL
+    </selectKey>
+    INSERT INTO RECORD (
+    ID,
+    MEMBER_ID,
+    DEPARTMENT_STORE_BRAND_ID,
+    PRODUCT_ID,
+    PRODUCT_STATUS,
+    PRODUCT_SIZE,
+    NOTE_SUMMARY,
+    CREATED_AT,
+    CREATED_BY
+    ) VALUES (
+    #{request.id},
+    #{memberId},
+    #{departmentStoreBrandId},
+    #{request.productId},
+    'AVAILABLE',
+    #{request.productSize},
+    #{request.noteSummary},
+    SYSDATE,
+    #{memberId}
+    )
+  </insert>
+
+  <insert id="insertRecordImage">
+    <selectKey keyProperty="id" resultType="long" order="BEFORE">
+      SELECT RECORD_IMAGE_SEQ.NEXTVAL FROM DUAL
+    </selectKey>
+    INSERT INTO RECORD_IMAGE (
+    ID,
+    RECORD_ID,
+    IMAGE_URL,
+    IMAGE_TYPE,
+    CREATED_AT,
+    CREATED_BY
+    ) VALUES (
+    #{id},
+    #{recordId},
+    #{imageUrl},
+    #{imageType},
+    SYSDATE,
+    #{memberId}
+    )
+  </insert>
+
+
+</mapper>
+

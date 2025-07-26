@@ -16,6 +16,7 @@
             BIRTHDAY,
             GENDER,
             CREATED_AT,
+            CREATED_BY,
             UPDATED_AT
         ) VALUES (
             #{request.id},
@@ -24,6 +25,7 @@
             #{request.birthday},
             #{request.gender},
             SYSDATE,
+            0,
             SYSDATE
         )
     </insert>
@@ -41,7 +43,7 @@
         CREATED_BY,
         UPDATED_AT,
         UPDATED_BY,
-        ISDELETED
+        IS_DELETED
         FROM MEMBER
         WHERE ID = #{id}
     </select>
@@ -59,7 +61,7 @@
         CREATED_BY,
         UPDATED_AT,
         UPDATED_BY,
-        ISDELETED
+        IS_DELETED
         FROM MEMBER
         WHERE OAUTH_ID = #{oauthId}
     </select>
