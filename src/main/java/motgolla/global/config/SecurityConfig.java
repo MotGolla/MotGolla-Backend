@@ -23,6 +23,7 @@ import motgolla.global.auth.login.CustomJsonUsernamePasswordAuthenticationFilter
 import motgolla.global.auth.login.LoginFailureHandler;
 import motgolla.global.auth.login.LoginService;
 import motgolla.global.auth.login.LoginSuccessHandler;
+import motgolla.global.util.RedisUtil;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,6 +40,7 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
     private final MemberMapper memberMapper;
+    private final RedisUtil redisUtil;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -117,7 +119,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
-        return new JwtAuthenticationProcessingFilter(jwtProvider, memberMapper);
+        return new JwtAuthenticationProcessingFilter(jwtProvider, memberMapper, redisUtil);
     }
 
     @Bean
