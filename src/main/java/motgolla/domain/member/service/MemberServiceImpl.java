@@ -30,6 +30,7 @@ public class MemberServiceImpl implements MemberService {
 	private final MemberMapper memberMapper;
 	private final JwtProvider jwtProvider;
 	private final OidcService oidcService;
+	private final RedisUtil redisUtil;
 
 	@Override
 	public TokenResponse createDevelopAccount(SignUpRequest signUpRequest) {
@@ -60,13 +61,13 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void logout(Member member) {
 		// 토큰 만료 처리
-		RedisUtil.delete(member.getId().toString());
+		redisUtil.delete(member.getId().toString());
 	}
 
 	@Override
 	public void resign(Member member) {
 		// 토큰 만료 처리
-		RedisUtil.delete(member.getId().toString());
+		redisUtil.delete(member.getId().toString());
 		// 논리적 삭제
 		memberMapper.updateIsDeleted(member.getId());
 	}

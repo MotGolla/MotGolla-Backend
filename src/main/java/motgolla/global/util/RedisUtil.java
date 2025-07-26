@@ -1,35 +1,36 @@
 package motgolla.global.util;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.List;
 
-public final class RedisUtil {
+import lombok.RequiredArgsConstructor;
 
-    private static RedisTemplate<String, String> redisTemplate;
+@Component
+@RequiredArgsConstructor
+public class RedisUtil {
 
-    public static void init(RedisTemplate<String, String> template) {
-        redisTemplate = template;
-    }
+    private final RedisTemplate<String, String> redisTemplate;
 
-    public static void set(String key, String value) {
+    public void set(String key, String value) {
         redisTemplate.opsForValue().set(key, value);
     }
 
-    public static void set(String key, String value, long timeoutSeconds) {
+    public void set(String key, String value, long timeoutSeconds) {
         redisTemplate.opsForValue().set(key, value, Duration.ofSeconds(timeoutSeconds));
     }
 
-    public static String get(String key) {
+    public String get(String key) {
         return redisTemplate.opsForValue().get(key);
     }
 
-    public static boolean delete(String key) {
+    public boolean delete(String key) {
         return Boolean.TRUE.equals(redisTemplate.delete(key));
     }
 
-    public static void deleteAll(List<String> keys) {
+    public void deleteAll(List<String> keys) {
         redisTemplate.delete(keys);
     }
 }

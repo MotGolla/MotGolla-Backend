@@ -61,6 +61,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private final MemberMapper memberMapper;
     private final GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private final RedisUtil redisUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
@@ -159,7 +160,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private boolean isRefreshTokenValidInDatabase(Long memberId, String refreshToken){
         log.info("isRefreshTokenValidInDatabase 진입");
         String hashedRefreshToken = HashUtil.hash(refreshToken);
-        return RedisUtil.get(memberId.toString()).equals(hashedRefreshToken);
+        return redisUtil.get(memberId.toString()).equals(hashedRefreshToken);
     }
 
 }

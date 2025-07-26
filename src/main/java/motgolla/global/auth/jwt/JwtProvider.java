@@ -55,6 +55,7 @@ public class JwtProvider{
     private static final String ID_CLAIM = "id";
 
     private final MemberMapper memberMapper;
+    private final RedisUtil redisUtil;
 
     /**
      * access token 생성
@@ -138,7 +139,7 @@ public class JwtProvider{
         String refreshToken = createRefreshToken(memberId);
         String hashedRefreshToken = HashUtil.hash(refreshToken);
 
-        RedisUtil.set(memberId.toString(), hashedRefreshToken);
+        redisUtil.set(memberId.toString(), hashedRefreshToken);
         return new TokenResponse(accessToken, refreshToken);
     }
 
