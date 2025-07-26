@@ -56,3 +56,9 @@ management:
   endpoint:
     health:
       show-details: always
+
+recommend:
+  lambda:
+    url: https://wfi3xgu4x4.execute-api.ap-northeast-2.amazonaws.com
+    path: /recommend
+    api-key: ${RECOMMEND_API_KEY}
