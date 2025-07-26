@@ -1,6 +1,8 @@
 package motgolla.global.auth.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.HashMap;
 import java.util.Map;
 
 import io.jsonwebtoken.Claims;
@@ -24,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 import motgolla.domain.member.dto.response.TokenResponse;
 import motgolla.domain.member.mapper.MemberMapper;
 import motgolla.domain.member.vo.Member;
+import motgolla.global.util.HashUtil;
+import motgolla.global.util.RedisUtil;
 
 @Slf4j
 @Getter
@@ -51,6 +55,7 @@ public class JwtProvider{
     private static final String ID_CLAIM = "id";
 
     private final MemberMapper memberMapper;
+    private final RedisUtil redisUtil;
 
     /**
      * access token 생성
@@ -129,10 +134,12 @@ public class JwtProvider{
         }
     }
 
-    public TokenResponse provideAccessTokenAndRefreshToken(Member member) {
-        String accessToken = createAccessToken(member.getId());
-        String refreshToken = createRefreshToken(member.getId());
+    public TokenResponse provideAccessTokenAndRefreshToken(Long memberId) {
+        String accessToken = createAccessToken(memberId);
+        String refreshToken = createRefreshToken(memberId);
+        String hashedRefreshToken = HashUtil.hash(refreshToken);
 
+        redisUtil.set(memberId.toString(), hashedRefreshToken);
         return new TokenResponse(accessToken, refreshToken);
     }
 
