@@ -26,8 +26,8 @@
             #{request.birthday},
             #{request.gender},
             SYSDATE,
-            SYSDATE,
             #{request.id},
+            SYSDATE,
             #{request.id}
         )
     </insert>
