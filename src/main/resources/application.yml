@@ -35,7 +35,7 @@ jwt:
     expiration: ${JWT_REFRESH_EXPIRATION}
 
 kakao:
-  rest-api-key: ${KAKAO_REST_API_KEY}
+  api-key: ${KAKAO_API_KEY}
 
 cloud:
   aws:
@@ -49,6 +49,10 @@ cloud:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}
 
+redis:
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT}
+
 management:
   endpoints:
     web:
@@ -61,3 +65,9 @@ management:
 
 openai:
   api-key: ${OPEN_AI_API_KEY}
+
+recommend:
+  lambda:
+    url: https://wfi3xgu4x4.execute-api.ap-northeast-2.amazonaws.com
+    path: /recommend
+    api-key: ${RECOMMEND_API_KEY}

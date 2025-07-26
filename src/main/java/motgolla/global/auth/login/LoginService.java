@@ -23,7 +23,6 @@ import motgolla.global.util.HashUtil;
 public class LoginService implements UserDetailsService {
 
     private final MemberMapper memberMapper;
-    private final HashUtil hashUtil;
 
     /**
      * 파라미터 socialId를 해싱 처리한 후 db에서 일치하는 사용자를 조회한다.
@@ -33,12 +32,11 @@ public class LoginService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String oauthId) throws UsernameNotFoundException {
         log.info("loadUserByUsername 진입");
-        String hashedOauthId = hashUtil.hash(oauthId);
-         Member member = memberMapper.findByOauthId(hashedOauthId)
+        log.info("oauthId: {}", oauthId);
+        String hashedOauthId = HashUtil.hash(oauthId);
+         return memberMapper.findByOauthId(hashedOauthId)
              .filter(m -> m.getIsDeleted() == 0)
                 .orElseThrow(() -> new UsernameNotFoundException("로그인에 실패했습니다."));
-
-        return member;
     }
 
 }

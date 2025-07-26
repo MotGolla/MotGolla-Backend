@@ -27,6 +27,8 @@ import motgolla.domain.member.mapper.MemberMapper;
 import motgolla.domain.member.vo.Member;
 import motgolla.global.error.ErrorCode;
 import motgolla.global.error.exception.InvalidTokenException;
+import motgolla.global.util.HashUtil;
+import motgolla.global.util.RedisUtil;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -59,6 +61,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private final MemberMapper memberMapper;
     private final GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private final RedisUtil redisUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
@@ -87,8 +90,13 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             Long memberId = jwtProvider.extractMemberId(refreshToken)
                 .orElseThrow(() -> new InvalidTokenException(ErrorCode.INVALID_REFRESH_TOKEN));
 
+            log.info("[reissueToken] memberId = {}", memberId);
             Member member = memberMapper.findById(memberId)
                 .orElseThrow(() -> new InvalidTokenException(ErrorCode.INVALID_REFRESH_TOKEN));
+
+            if(!isRefreshTokenValidInDatabase(memberId, refreshToken)){
+                throw new InvalidTokenException(ErrorCode.INVALID_REFRESH_TOKEN);
+            }
 
             jwtProvider.provideAccessToken(response, member);
         }
@@ -149,13 +157,10 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
 
     // 요청의 refresh token이 db에 저장된 refresh token과 일치하는지 검사
-    // private boolean isRefreshTokenValidInDatabase(String refreshToken){
-    //     log.info("isRefreshTokenValidInDatabase 진입");
-    //     boolean result = false;
-    //     if (memberRepository.findByRefreshToken(refreshToken).isPresent()) {
-    //         return true;
-    //     }
-    //     return result;
-    // }
+    private boolean isRefreshTokenValidInDatabase(Long memberId, String refreshToken){
+        log.info("isRefreshTokenValidInDatabase 진입");
+        String hashedRefreshToken = HashUtil.hash(refreshToken);
+        return redisUtil.get(memberId.toString()).equals(hashedRefreshToken);
+    }
 
 }

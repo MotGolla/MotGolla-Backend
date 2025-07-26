@@ -17,7 +17,8 @@
             GENDER,
             CREATED_AT,
             CREATED_BY,
-            UPDATED_AT
+            UPDATED_AT,
+            UPDATED_BY
         ) VALUES (
             #{request.id},
             #{request.name},
@@ -25,8 +26,9 @@
             #{request.birthday},
             #{request.gender},
             SYSDATE,
-            0,
-            SYSDATE
+            #{request.id},
+            SYSDATE,
+            #{request.id}
         )
     </insert>
 
@@ -65,4 +67,11 @@
         FROM MEMBER
         WHERE OAUTH_ID = #{oauthId}
     </select>
+
+    <!-- 회원 탈퇴 -->
+    <update id="updateIsDeleted" parameterType="long">
+        UPDATE MEMBER
+        SET IS_DELETED = 1, UPDATED_AT = SYSDATE, UPDATED_BY = #{id}
+        WHERE ID = #{id}
+    </update>
 </mapper>

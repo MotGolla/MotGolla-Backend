@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,7 +23,10 @@ import motgolla.global.auth.login.CustomAuthenticationProvider;
 import motgolla.global.auth.login.CustomJsonUsernamePasswordAuthenticationFilter;
 import motgolla.global.auth.login.LoginFailureHandler;
 import motgolla.global.auth.login.LoginService;
+import motgolla.global.auth.login.LoginSuccessHandler;
+import motgolla.global.util.RedisUtil;
 
+@EnableMethodSecurity(prePostEnabled = true)
 @Slf4j
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -38,6 +42,7 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
     private final MemberMapper memberMapper;
+    private final RedisUtil redisUtil;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -102,12 +107,21 @@ public class SecurityConfig {
                 = new CustomJsonUsernamePasswordAuthenticationFilter(objectMapper);
         customJsonUsernamePasswordLoginFilter.setAuthenticationManager(authenticationManager());
         customJsonUsernamePasswordLoginFilter.setAuthenticationFailureHandler(loginFailureHandler());
+        customJsonUsernamePasswordLoginFilter.setAuthenticationSuccessHandler(loginSuccessHandler());
         return customJsonUsernamePasswordLoginFilter;
+    }
+
+    /**
+     * 로그인 성공 시 호출되는 LoginSuccessJWTProviderHandler 빈 등록
+     */
+    @Bean
+    public LoginSuccessHandler loginSuccessHandler() {
+        return new LoginSuccessHandler(jwtProvider, memberMapper);
     }
 
     @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
-        return new JwtAuthenticationProcessingFilter(jwtProvider, memberMapper);
+        return new JwtAuthenticationProcessingFilter(jwtProvider, memberMapper, redisUtil);
     }
 
     @Bean

@@ -1,21 +1,22 @@
 package motgolla.domain.member.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import motgolla.domain.member.dto.request.LoginRequest;
 import motgolla.domain.member.dto.request.SignUpRequest;
+import motgolla.domain.member.dto.response.MemberInfoResponse;
 import motgolla.domain.member.dto.response.TokenResponse;
 import motgolla.domain.member.service.MemberService;
 import motgolla.domain.member.vo.Member;
@@ -24,41 +25,47 @@ import motgolla.domain.member.vo.Member;
 @RequestMapping("/api/member")
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "회원 API", description = "회원 가입, 로그인, 정보 조회 등의 API")
 public class MemberController {
 	private final MemberService memberService;
 
 	@PostMapping("/develop")
+	@Operation(summary = "개발용 계정 생성", description = "개발용 회원가입 API (테스트용)")
 	public ResponseEntity<TokenResponse> develop(@RequestBody SignUpRequest signUpRequest) {
 		TokenResponse response = memberService.createDevelopAccount(signUpRequest);
 		return ResponseEntity.ok().body(response);
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<TokenResponse> login(@AuthenticationPrincipal Member member) {
-		TokenResponse response = memberService.login(member);
-		return ResponseEntity.ok().body(response);
+	@Operation(summary = "로그인", description = "로그인 시도 후 회원 여부 판단")
+	public String login(@RequestBody LoginRequest loginRequest) {
+		return "success";
 	}
 
 	@PostMapping("/sign-up")
+	@Operation(summary = "회원가입", description = "소셜 로그인 후 회원가입을 진행")
 	public ResponseEntity<TokenResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
 		TokenResponse response = memberService.signUp(signUpRequest);
 		return ResponseEntity.ok().body(response);
 	}
 
 	@PatchMapping("/resign")
+	@Operation(summary = "회원 탈퇴", description = "회원 탈퇴 처리")
 	public ResponseEntity<String> resign(@AuthenticationPrincipal Member member){
 		memberService.resign(member);
 		return ResponseEntity.ok().body("success");
 	}
 
 	@PatchMapping("/logout")
+	@Operation(summary = "로그아웃", description = "로그아웃 처리")
 	public ResponseEntity<String> logout(@AuthenticationPrincipal Member member){
 		memberService.logout(member);
 		return ResponseEntity.ok().body("success");
 	}
 
-	@GetMapping("/test")
-	public ResponseEntity<String> test(@AuthenticationPrincipal Member member){
-		return ResponseEntity.ok().body(member.getName());
+	@GetMapping()
+	@Operation(summary = "회원 정보 조회", description = "현재 로그인된 회원의 정보를 조회")
+	public ResponseEntity<MemberInfoResponse> getMemberInfo(@AuthenticationPrincipal Member member){
+		return ResponseEntity.ok().body(member.toDto());
 	}
 }
