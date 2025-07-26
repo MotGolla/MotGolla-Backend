@@ -18,8 +18,15 @@ public enum ErrorCode {
 
     /* MEMBER ERROR */
     MEMBER_NOT_FOUND(404, "MEMBER001", "Member Not Found"),
-    DUPLICATED_MEMBER(400, "MEMBER002", "Duplicated Member");
+    DUPLICATED_MEMBER(400, "MEMBER002", "Duplicated Member"),
 
+    /* BARCODE ERROR */
+    BARCODE_INFO_NOT_FOUND(400,"BARCODE001","등록된 상품 정보를 찾을 수 없습니다.\n"
+        + "상품 바코드를 다시 한 번 확인해 주세요."),
+
+    /* OPEN AI ERROR */
+    OPENAI_RESPONSE_ERROR(500, "OPENAI001", "OpenAI 응답 처리 중 오류가 발생했습니다."),
+    OPENAI_API_CALL_FAILED(500, "OPENAI002", "OpenAI API 호출에 실패했습니다.");
 
     private final int status;
     private final String code;
