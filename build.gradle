@@ -28,6 +28,7 @@ dependencies {
     // 필수 라이브러리
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     // MyBatis 연동
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
@@ -37,7 +38,10 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     // 오라클 JDBC
-    runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
+    runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
+    implementation 'com.oracle.database.security:oraclepki:21.9.0.0'
+    implementation 'com.oracle.database.security:osdt_core:21.9.0.0'
+    implementation 'com.oracle.database.security:osdt_cert:21.9.0.0'
 
     // Lombok
     annotationProcessor 'org.projectlombok:lombok'
@@ -64,6 +68,10 @@ dependencies {
 
     // health
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // multipart JSON PARSING
+    implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

@@ -12,6 +12,22 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest # 이 작업은 최신 Ubuntu 러너에서 실행됩니다.
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      ORACLE_DB_URL: ${{ secrets.ORACLE_DB_URL }}
+      ORACLE_DB_USERNAME: ${{ secrets.ORACLE_DB_USERNAME }}
+      ORACLE_DB_PASSWORD: ${{ secrets.ORACLE_DB_PASSWORD }}
+      JWT_SECRET: ${{secrets.JWT_SECRET}}
+      JWT_ACCESS_EXPIRATION: ${{secrets.JWT_ACCESS_EXPIRATION}}
+      JWT_REFRESH_EXPIRATION: ${{secrets.JWT_REFRESH_EXPIRATION}}
+      KAKAO_API_KEY: ${{secrets.KAKAO_API_KEY}}
+      OPEN_AI_API_KEY: ${{secrets.OPEN_AI_API_KEY}}
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      SWAGGER_SERVER: ${{ secrets.SWAGGER_SERVER }}
+      RECOMMEND_API_KEY: ${{secrets.RECOMMEND_API_KEY}}
     permissions:
       contents: read # 리포지토리 콘텐츠에 대한 읽기 권한 부여
 
@@ -52,6 +68,16 @@ jobs:
           # 빌드된 이미지를 Docker Hub에 푸시합니다.
           docker push ${{ secrets.DOCKER_USERNAME }}/motgolla-backend:latest
 
+      - name: Copy compose.yml to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: "compose.yml"
+          target: "/home/ubuntu/app"
+          overwrite: true
+
       # EC2 접속 후 배포 실행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1 # SSH를 통해 원격 서버에 명령을 실행하는 액션 사용
@@ -60,74 +86,74 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }} # EC2 인스턴스 사용자 이름 (예: ubuntu) (GitHub Secrets)
           key: ${{ secrets.EC2_PRIVATE_KEY }} # EC2 SSH 프라이빗 키 (GitHub Secrets)
           # 파일 복사를 위한 source 및 target 파라미터 수정
-          source: "docker-compose.yml" # GitHub Actions 러너의 현재 디렉토리에서 docker-compose.yml 파일
-          target: "/home/ubuntu/app" # EC2 인스턴스의 대상 디렉토리 (수정됨)
           script: |
             # EC2 인스턴스 내부에서 실행될 스크립트
+            # 애플리케이션 디렉토리가 없으면 생성합니다.
+            mkdir -p /home/ubuntu/app
+            cd /home/ubuntu/app
+            echo "Creating .env file with secrets..."
+            # 기존 .env 파일이 존재하면 삭제
+            [ -f .env ] && rm .env
+            echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" > .env
+            echo "ORACLE_DB_URL=${{ secrets.ORACLE_DB_URL }}" >> .env
+            echo "ORACLE_DB_USERNAME=${{ secrets.ORACLE_DB_USERNAME }}" >> .env
+            echo "ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "JWT_ACCESS_EXPIRATION=${{ secrets.JWT_ACCESS_EXPIRATION }}" >> .env
+            echo "JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }}" >> .env
+            echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env
+            echo "OPEN_AI_API_KEY=${{ secrets.OPEN_AI_API_KEY }}" >> .env
+            echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
+            echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
+            echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env
+            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+            echo "SWAGGER_SERVER=${{ secrets.SWAGGER_SERVER }}" >> .env
+            echo "RECOMMEND_API_KEY=${{ secrets.RECOMMEND_API_KEY }}" >> .env
+            echo ".env file created."
+            # Docker Compose를 사용하여 서비스 배포
+            # --pull: 항상 최신 이미지를 풀(pull)해옵니다.
+            # --force-recreate: 기존 컨테이너를 강제로 다시 생성합니다.
+            # -d: 백그라운드에서 실행합니다.
+            echo "Pulling latest Docker images..."
+            docker compose -f compose.yml down --remove-orphans
+            docker compose -f compose.yml pull
 
-                        # 애플리케이션 디렉토리가 없으면 생성합니다.
-                        mkdir -p /home/ubuntu/app
-                        cd /home/ubuntu/app 
+            echo "Starting Docker Compose services..."
+            docker compose -f compose.yml up -d --force-recreate --build
 
-                        # .env 파일을 동적으로 생성하여 GitHub Secrets의 환경 변수를 주입합니다.
-                        echo "Creating .env file with secrets..."
-                        cat << EOF > .env
-                        DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-                        ORACLE_DB_URL=${{ secrets.ORACLE_DB_URL }}
-                        ORACLE_DB_USERNAME=${{ secrets.ORACLE_DB_USERNAME }}
-                        ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}
-                        AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
-                        AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
-                        AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
-                        AWS_REGION=${{ secrets.AWS_REGION }}
-                        SWAGGER_SERVER=${{ secrets.SWAGGER_SERVER }}
-                        EOF
-                        echo ".env file created."
+            echo "=== Waiting for application startup ==="
+            sleep 20 # 애플리케이션 초기화 시간을 기다립니다.
 
-                        # Docker Compose를 사용하여 서비스 배포
-                        # --pull: 항상 최신 이미지를 풀(pull)해옵니다.
-                        # --force-recreate: 기존 컨테이너를 강제로 다시 생성합니다.
-                        # -d: 백그라운드에서 실행합니다.
-                        echo "Pulling latest Docker images..."
-                        # 기존 컨테이너 중지 및 정리
-                        docker-compose down --remove-orphans
-                        docker-compose pull
-                        echo "Starting Docker Compose services..."
-                        docker-compose up -d --force-recreate  --build
+            # 실행 중인 컨테이너 상태 확인
+            echo "=== Container Status ==="
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-                        echo "=== Waiting for application startup ==="
-                        sleep 20 # 애플리케이션 초기화 시간을 기다립니다.
+            # 애플리케이션 로그 (최근 10줄)
+            echo "=== Application Logs ==="
+            docker logs --tail 10 motgolla-backend
 
-                        # 실행 중인 컨테이너 상태 확인
-                        echo "=== Container Status ==="
-                        docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+            # 헬스 체크
+            echo "=== Health Check ==="
+            for i in {1..5}; do
+              # 백엔드 애플리케이션의 헬스 체크 포트가 8080이므로 localhost:8080으로 변경
+              if curl -f -s http://localhost:8080/actuator/health > /dev/null; then
+                echo "Health check passed"
+                break
+              else
+                echo "Health check attempt $i/5 failed, retrying..."
+                sleep 3
+              fi
 
-                        # 애플리케이션 로그 (최근 10줄)
-                        echo "=== Application Logs ==="
-                        docker logs --tail 10 motgolla-backend
+              # 5번 시도 후에도 실패 시 로그 출력 후 배포 실패 처리
+              if [ $i -eq 5 ]; then
+                echo "Health check failed after 5 attempts"
+                echo "=== Error Logs ==="
+                docker logs --tail 20 motgolla-backend
+                exit 1
+              fi
+            done
 
-                        # 헬스 체크
-                        echo "=== Health Check ==="
-                        for i in {1..5}; do
-                          # 백엔드 애플리케이션의 헬스 체크 포트가 8080이므로 localhost:8080으로 변경
-                          if curl -f -s http://localhost:8080/actuator/health > /dev/null; then
-                            echo "Health check passed"
-                            break
-                          else
-                            echo "Health check attempt $i/5 failed, retrying..."
-                            sleep 3
-                          fi
+            # 오래된 사용되지 않는 Docker 이미지 정리
+            docker image prune -f
 
-                          # 5번 시도 후에도 실패 시 로그 출력 후 배포 실패 처리
-                          if [ $i -eq 5 ]; then
-                            echo "Health check failed after 5 attempts"
-                            echo "=== Error Logs ==="
-                            docker logs --tail 20 motgolla-backend
-                            exit 1
-                          fi
-                        done
-
-                        # 오래된 사용되지 않는 Docker 이미지 정리
-                        docker image prune -f
-
-                        echo "Deployment completed successfully"
+            echo "Deployment completed successfully"
