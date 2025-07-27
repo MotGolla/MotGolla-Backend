@@ -34,4 +34,7 @@ public class SignUpRequest{
     @NotBlank(message = "생년월일은 필수입니다.")
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "생년월일 형식은 YYYY-MM-DD이어야 합니다.")
     private String birthday;
+
+    @Schema(description = "프로필 이미지", example = "https://~")
+    private String profile;
 }
