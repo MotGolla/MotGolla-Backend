@@ -87,14 +87,20 @@
     p.NAME AS productName,
     b.BRAND_NAME AS brandName,
     p.PRICE AS productPrice,
-    TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS recordCreatedAt,
+    TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD HH24:MI') AS recordCreatedAt,
     r.PRODUCT_SIZE AS productSize,
     p.PRODUCT_NUMBER AS productNumber,
     r.PRODUCT_STATUS AS productStatus,
-    r.NOTE_SUMMARY AS productSummary
+    r.NOTE_SUMMARY AS productSummary,
+
+    ds.STORE_NAME AS storeName,
+    ds.MAP_LINK AS mapLink
+
     FROM RECORD r
     JOIN PRODUCT p ON r.PRODUCT_ID = p.ID
     JOIN BRAND b ON p.BRAND_ID = b.ID
+    JOIN DEPARTMENT_STORE_BRAND dsb ON r.DEPARTMENT_STORE_BRAND_ID = dsb.ID
+    JOIN DEPARTMENT_STORE ds ON ds.ID = dsb.DEPARTMENT_STORE_ID
     WHERE r.ID = #{recordId}
   </select>
 

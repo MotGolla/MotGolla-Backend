@@ -44,4 +44,11 @@ public class RecordDetailResponse {
 
     @Schema(description = "택 이미지 URL (IMAGE_TYPE = 'TAG')")
     private String tagImageUrl;
+
+    @Schema(description = "백화점 이름", example = "현대백화점 무역센터점")
+    private String storeName;
+
+    @Schema(description = "백화점 지도 링크", example = "https://naver.me/abc123")
+    private String mapLink;
+
 }
