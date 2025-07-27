@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Schema(description = "기록 등록 요청 Request")
 public class RecordRegisterRequest {
 
-  @Schema(description = "기록 ID", example = "빈값")
+  @Schema(description = "기록 ID", example = "빈값",hidden = true)
   private Long id;
 
   @Schema(description = "현재 백화점명", example = "현대백화점 판교점")
