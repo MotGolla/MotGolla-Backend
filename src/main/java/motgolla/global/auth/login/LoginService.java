@@ -1,6 +1,8 @@
 package motgolla.global.auth.login;
 
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,9 +43,17 @@ public class LoginService implements UserDetailsService {
 
         if (member.isPresent()) {
             Member userDetails = member.get();
-            if(userDetails.getIsDeleted() == 1){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime updatedAt = LocalDateTime.parse(userDetails.getUpdatedAt(), formatter);
+
+            if (userDetails.getIsDeleted() == 1 && updatedAt.isAfter(LocalDateTime.now().minusMonths(6))) {
                 throw new UsernameNotFoundException(ErrorCode.RECENT_RESIGNED_MEMBER.getCode());
             }
+
+            if(userDetails.getIsDeleted() == 1 && updatedAt.isBefore(LocalDateTime.now())) {
+                throw new UsernameNotFoundException(ErrorCode.LOGIN_FAILED.getCode());
+            }
+
             return member.get();
         }
         else{
