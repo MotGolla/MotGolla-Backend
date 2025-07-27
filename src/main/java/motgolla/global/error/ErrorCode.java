@@ -27,7 +27,10 @@ public enum ErrorCode {
 
     /* OPEN AI ERROR */
     OPENAI_RESPONSE_ERROR(500, "OPENAI001", "OpenAI 응답 처리 중 오류가 발생했습니다."),
-    OPENAI_API_CALL_FAILED(500, "OPENAI002", "OpenAI API 호출에 실패했습니다.");
+    OPENAI_API_CALL_FAILED(500, "OPENAI002", "OpenAI API 호출에 실패했습니다."),
+
+    /* RECORD ERROR */
+    RECORD_NOT_FOUND(404, "RECORD001", "등록된 기록 정보를 찾을 수 없습니다.");
 
     private final int status;
     private final String code;

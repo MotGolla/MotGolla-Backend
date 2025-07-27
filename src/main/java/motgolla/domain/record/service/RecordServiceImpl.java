@@ -1,12 +1,12 @@
 package motgolla.domain.record.service;
 
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import motgolla.domain.record.dto.ProductToBarcodeScanDto;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
+import motgolla.domain.record.dto.response.RecordDetailResponse;
 import motgolla.domain.record.mapper.RecordMapper;
 import motgolla.global.error.ErrorCode;
 import motgolla.global.error.exception.BusinessException;
@@ -78,5 +78,43 @@ public class RecordServiceImpl implements RecordService {
         ErrorCode.BARCODE_INFO_NOT_FOUND
     ));
     return barcodeScanInfo.get();
+  }
+
+  @Override
+  public RecordDetailResponse getRecordDetail(Long recordId) {
+    RecordDetailResponse record = recordMapper.findRecordMainById(recordId);
+    if (record == null) {
+      throw new BusinessException(
+              ErrorCode.RECORD_NOT_FOUND
+      );
+    }
+
+    // 1. 일반 이미지
+    record.setImageUrls(recordMapper.findImageUrlsByRecordId(recordId));
+
+    // 2. 태그 이미지 (1개만 존재)
+    record.setTagImageUrl(recordMapper.findTagImageUrlByRecordId(recordId));
+
+    // 3. 브랜드 위치 처리 (gender + location 로직 재사용)
+    List<String> rawLocations = recordMapper.findBrandLocationInfoByRecordId(recordId);
+    List<String> result = new ArrayList<>();
+
+    if (rawLocations.size() == 1) {
+      result.add(rawLocations.get(0).split("\\|")[1]);
+    } else {
+      for (String raw : rawLocations) {
+        String[] parts = raw.split("\\|");
+        String gender = parts[0];
+        String location = parts[1];
+        if (gender == null || gender.isBlank()) {
+          result.add(location);
+        } else {
+          result.add(gender + " " + location);
+        }
+      }
+    }
+
+    record.setBrandLocationInfo(result);
+    return record;
   }
 }
