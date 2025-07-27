@@ -9,7 +9,7 @@ import java.util.List;
 public interface VoteService {
     Long createVote(Long id, VoteCreateRequest request);
 
-    List<VoteDetailResponse> getVotes(Long memberId);
+    List<VoteDetailResponse> getVotes(Long memberId, String type);
 
     void vote(Long memberId, Long voteGroupId, Long voteCandidateId);
 }

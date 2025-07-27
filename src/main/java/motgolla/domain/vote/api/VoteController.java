@@ -30,8 +30,9 @@ public class VoteController {
     }
 
     @GetMapping
-    public List<VoteDetailResponse> getVoteList(@AuthenticationPrincipal Member member) {
-        return voteService.getVotes(member.getId());
+    public List<VoteDetailResponse> getVoteList(@AuthenticationPrincipal Member member,
+                                                @RequestParam(defaultValue = "all") String type) {
+        return voteService.getVotes(member.getId(), type);
     }
 
     @PostMapping("/{voteGroupId}/vote")

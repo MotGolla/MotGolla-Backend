@@ -33,8 +33,8 @@ public class VoteServiceImpl implements VoteService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<VoteDetailResponse> getVotes(Long memberId) {
-        List<VoteDetailDto> raws = voteMapper.findVoteDetails(memberId);
+    public List<VoteDetailResponse> getVotes(Long memberId, String type) {
+        List<VoteDetailDto> raws = voteMapper.findVoteDetails(memberId, type);
 
         Map<Long, List<VoteDetailDto>> grouped = raws.stream()
                 .collect(Collectors.groupingBy(VoteDetailDto::getVoteGroupId));
@@ -52,8 +52,8 @@ public class VoteServiceImpl implements VoteService {
             response.setVotedByMe(first.isVotedByMe());
 
             List<VoteDetailResponse.CandidateResult> candidates = list.stream().map(r -> {
-                Double percent = (r.isMine() || r.isVotedByMe()) && r.getTotalVotes() > 0
-                        ? (r.getVoteCount() * 100.0 / r.getTotalVotes())
+                Integer percent = (r.isMine() || r.isVotedByMe()) && r.getTotalVotes() > 0
+                        ? (int) Math.round(r.getVoteCount() * 100.0 / r.getTotalVotes())
                         : null;
                 return new VoteDetailResponse.CandidateResult(
                         r.getCandidateId(),

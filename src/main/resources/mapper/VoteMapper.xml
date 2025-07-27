@@ -47,6 +47,21 @@
         FROM VOTE_GROUP vg
         JOIN VOTE_CANDIDATE vc ON vc.VOTE_GROUP_ID = vg.ID
         LEFT JOIN PRODUCT_VOTE pv ON pv.VOTE_CANDIDATE_ID = vc.ID
+        WHERE
+            <choose>
+                <when test="type == 'mine'">
+                    vg.MEMBER_ID = #{memberId}
+                </when>
+                <when test="type == 'voted'">
+                    EXISTS (
+                    SELECT 1 FROM PRODUCT_VOTE pvx
+                    WHERE pvx.VOTE_GROUP_ID = vg.ID AND pvx.MEMBER_ID = #{memberId}
+                    )
+                </when>
+                <otherwise>
+                    1 = 1
+                </otherwise>
+            </choose>
         GROUP BY vg.ID, vg.TITLE, vg.MEMBER_ID, vc.ID, vc.RECORD_ID
     </select>
 

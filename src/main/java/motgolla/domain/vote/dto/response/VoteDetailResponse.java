@@ -22,7 +22,7 @@ public class VoteDetailResponse {
         private Long recordId;
         private int voteCount;
         private int totalVotes;
-        private Double percentage;
+        private Integer percentage;
         private String imageUrl;
     }
 }
