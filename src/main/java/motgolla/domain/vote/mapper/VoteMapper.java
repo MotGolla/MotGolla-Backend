@@ -1,5 +1,6 @@
 package motgolla.domain.vote.mapper;
 
+import motgolla.domain.vote.dto.VoteDetailDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -14,4 +15,6 @@ public interface VoteMapper {
     void insertVoteCandidate(@Param("voteGroupId") Long voteGroupId,
                               @Param("recordId") Long recordId,
                               @Param("memberId") Long memberId);
+
+    List<VoteDetailDto> findVoteDetails(@Param("memberId") Long memberId);
 }

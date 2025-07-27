@@ -1,12 +1,17 @@
 package motgolla.domain.vote.service;
 
 import lombok.RequiredArgsConstructor;
+import motgolla.domain.vote.dto.VoteDetailDto;
 import motgolla.domain.vote.dto.request.VoteCreateRequest;
+import motgolla.domain.vote.dto.response.VoteDetailResponse;
 import motgolla.domain.vote.mapper.VoteMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -23,6 +28,46 @@ public class VoteServiceImpl implements VoteService {
         }
 
         return voteGroupId;
+    }
+
+    @Override
+    public List<VoteDetailResponse> getVotes(Long memberId) {
+        List<VoteDetailDto> raws = voteMapper.findVoteDetails(memberId);
+
+        Map<Long, List<VoteDetailDto>> grouped = raws.stream()
+                .collect(Collectors.groupingBy(VoteDetailDto::getVoteGroupId));
+
+        List<VoteDetailResponse> responses = new ArrayList<>();
+
+        for (Map.Entry<Long, List<VoteDetailDto>> entry : grouped.entrySet()) {
+            List<VoteDetailDto> list = entry.getValue();
+            VoteDetailDto first = list.get(0);
+
+            VoteDetailResponse response = new VoteDetailResponse();
+            response.setVoteGroupId(first.getVoteGroupId());
+            response.setTitle(first.getVoteTitle());
+            response.setMine(first.isMine());
+            response.setVotedByMe(first.isVotedByMe());
+
+            List<VoteDetailResponse.CandidateResult> candidates = list.stream().map(r -> {
+                Double percent = (r.isMine() || r.isVotedByMe()) && r.getTotalVotes() > 0
+                        ? (r.getVoteCount() * 100.0 / r.getTotalVotes())
+                        : null;
+                return new VoteDetailResponse.CandidateResult(
+                        r.getCandidateId(),
+                        r.getRecordId(),
+                        r.getVoteCount(),
+                        r.getTotalVotes(),
+                        percent,
+                        r.getImageUrl()
+                );
+            }).collect(Collectors.toList());
+
+            response.setCandidates(candidates);
+            responses.add(response);
+        }
+
+        return responses;
     }
 }
 

@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import motgolla.domain.member.vo.Member;
 import motgolla.domain.vote.dto.request.VoteCreateRequest;
 import motgolla.domain.vote.dto.response.VoteCreateResponse;
+import motgolla.domain.vote.dto.response.VoteDetailResponse;
 import motgolla.domain.vote.service.VoteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/votes")
@@ -27,4 +27,10 @@ public class VoteController {
         Long voteGroupId = voteService.createVote(member.getId(), request);
         return ResponseEntity.ok(new VoteCreateResponse(voteGroupId));
     }
+
+    @GetMapping
+    public List<VoteDetailResponse> getVoteList(@AuthenticationPrincipal Member member) {
+        return voteService.getVotes(member.getId());
+    }
+
 }
