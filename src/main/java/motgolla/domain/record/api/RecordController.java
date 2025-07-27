@@ -1,7 +1,12 @@
 package motgolla.domain.record.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import motgolla.domain.member.vo.Member;
@@ -11,61 +16,58 @@ import motgolla.domain.record.dto.response.MemoSummaryResponse;
 import motgolla.domain.record.dto.response.RecordRegisterResponse;
 import motgolla.domain.record.service.MemoSummarizer;
 import motgolla.domain.record.service.RecordService;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @Slf4j
+@RestController
 @RequestMapping("/api/record")
 @RequiredArgsConstructor
-@RestController
+@Tag(name = "기록", description = "기록 등록 및 메모 요약 API")
 public class RecordController {
-
 
   private final RecordService recordService;
   private final MemoSummarizer memoSummarizer;
 
+  @Operation(
+      summary = "기록 등록 (안드로이드 전용) POSTMAN으로 진행하세요",
+      description = "이미지 및 상품 정보를 포함한 기록을 등록합니다."
+  )
   @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<RecordRegisterResponse> recordRegister(
-      @AuthenticationPrincipal Member member, @ModelAttribute RecordRegisterRequest request) {
-    log.info("recordRegister() :: {}", request);
-    recordService.registerRecord(request, member.getId());
-    return ResponseEntity.ok().body(new RecordRegisterResponse(true, null));
-  }
-
-
-  // POSTMAN 으로 기록 등록하는 테스트 컨트롤러이다. 안드로이드 사용시 위에꺼 사용
-  @PostMapping(value = "/test/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<RecordRegisterResponse> recordRegister(
+  public ResponseEntity<RecordRegisterResponse> recordRegisterByPostman(
       @AuthenticationPrincipal Member member,
-      @RequestPart("request") RecordRegisterRequest request,
-      @RequestPart("tagImg") MultipartFile tagImg,
-      @RequestPart("productImgs") List<MultipartFile> productImgs
+      @Parameter(description = "기록 등록 JSON 데이터")
+      @ModelAttribute RecordRegisterRequest request
   ) {
-    // 파일과 DTO 따로 주입되므로 수동으로 세팅 필요
-    request.setTagImg(tagImg);
-    request.setProductImgs(productImgs);
-
     log.info("recordRegister() :: {}", request);
     recordService.registerRecord(request, member.getId());
     return ResponseEntity.ok().body(new RecordRegisterResponse(true, null));
   }
 
+
+  @Operation(
+      summary = "메모 요약",
+      description = "STT 텍스트 메모를 AI 기반으로 요약합니다.",
+      requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+          description = "STT 텍스트를 포함한 메모 요청",
+          required = true,
+          content = @Content(schema = @Schema(implementation = MemoSummaryRequest.class))
+      )
+  )
   @PostMapping("/memo-summary")
   public ResponseEntity<MemoSummaryResponse> summarizeMemo(
-      @RequestBody MemoSummaryRequest request) {
+      @org.springframework.web.bind.annotation.RequestBody MemoSummaryRequest request) {
+
     log.info("summarizeMemo() :: {}", request);
     String summaryMemo = memoSummarizer.analyze(request.getSttMemo());
     return ResponseEntity.ok().body(new MemoSummaryResponse(summaryMemo));
   }
-
-
 }
