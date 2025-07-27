@@ -17,4 +17,8 @@ public interface VoteMapper {
                               @Param("memberId") Long memberId);
 
     List<VoteDetailDto> findVoteDetails(@Param("memberId") Long memberId);
+
+    void insertVote(@Param("memberId") Long memberId,
+                           @Param("voteGroupId") Long voteGroupId,
+                           @Param("voteCandidateId") Long voteCandidateId);
 }

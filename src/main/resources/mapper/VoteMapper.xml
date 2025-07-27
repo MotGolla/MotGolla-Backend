@@ -49,4 +49,18 @@
         LEFT JOIN PRODUCT_VOTE pv ON pv.VOTE_CANDIDATE_ID = vc.ID
         GROUP BY vg.ID, vg.TITLE, vg.MEMBER_ID, vc.ID, vc.RECORD_ID
     </select>
+
+    <insert id="insertVote">
+        INSERT INTO PRODUCT_VOTE (
+            ID, MEMBER_ID, VOTE_GROUP_ID, VOTE_CANDIDATE_ID,
+            CREATED_AT, CREATED_BY
+        ) VALUES (
+            PRODUCT_VOTE_SEQ.NEXTVAL,
+            #{memberId},
+            #{voteGroupId},
+            #{voteCandidateId},
+            SYSTIMESTAMP,
+            #{memberId}
+        )
+    </insert>
 </mapper>

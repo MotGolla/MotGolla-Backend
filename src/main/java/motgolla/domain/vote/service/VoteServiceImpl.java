@@ -14,12 +14,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class VoteServiceImpl implements VoteService {
 
     private final VoteMapper voteMapper;
 
-    @Transactional
+    @Override
     public Long createVote(Long memberId, VoteCreateRequest request) {
         voteMapper.insertVoteGroup(request.getTitle(), memberId);
         Long voteGroupId = voteMapper.getLastInsertedVoteGroupId();
@@ -31,6 +32,7 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<VoteDetailResponse> getVotes(Long memberId) {
         List<VoteDetailDto> raws = voteMapper.findVoteDetails(memberId);
 
@@ -68,6 +70,11 @@ public class VoteServiceImpl implements VoteService {
         }
 
         return responses;
+    }
+
+    @Override
+    public void vote(Long memberId, Long voteGroupId, Long voteCandidateId) {
+        voteMapper.insertVote(memberId, voteGroupId, voteCandidateId);
     }
 }
 
