@@ -21,6 +21,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import motgolla.domain.member.mapper.MemberMapper;
+import motgolla.global.util.HashUtil;
 
 /**
  * "/login" 요청 왔을 때 JSON 값을 매핑 처리하는 필터
@@ -33,15 +35,18 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
     private static final String HTTP_METHOD = "POST";
     private static final String CONTENT_TYPE = "application/json";
     private static final String OAUTH_ID_KEY = "oauthId";
+    private static final String RE_SIGNUP = "reSignUp";
     private static final AntPathRequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER =
             new AntPathRequestMatcher(LOGIN_URL, HTTP_METHOD); // 로그인 요청
 
     private final ObjectMapper objectMapper;
+    private final MemberMapper memberMapper;
 
-    public CustomJsonUsernamePasswordAuthenticationFilter(ObjectMapper objectMapper) {
+    public CustomJsonUsernamePasswordAuthenticationFilter(ObjectMapper objectMapper, MemberMapper memberMapper) {
         super(DEFAULT_LOGIN_PATH_REQUEST_MATCHER);
         this.objectMapper = objectMapper;
-    }
+		this.memberMapper = memberMapper;
+	}
 
     /**
      * 인증 처리 메소드
@@ -66,9 +71,16 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
         }
 
         String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
-        Map<String, String> loginDataMap = objectMapper.readValue(messageBody, Map.class);
-        String oauthId = loginDataMap.get(OAUTH_ID_KEY);
+        Map<String, Object> loginDataMap = objectMapper.readValue(messageBody, Map.class);
+        String oauthId = (String) loginDataMap.get(OAUTH_ID_KEY);
 
+        Object reSignUpObj = loginDataMap.get(RE_SIGNUP);
+        boolean isReSignUp = reSignUpObj != null && "true".equalsIgnoreCase(reSignUpObj.toString().trim());
+
+        if (isReSignUp) {
+            log.info("[UserNamePasswordAuthenticationFilter] Re-Sign up");
+            memberMapper.updateIsDeletedFalse(HashUtil.hash(oauthId));
+        }
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(oauthId, "");
 
         return this.getAuthenticationManager().authenticate(authRequest);

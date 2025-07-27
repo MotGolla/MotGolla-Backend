@@ -56,7 +56,7 @@ public class MemberController {
 		return ResponseEntity.ok().body("success");
 	}
 
-	@PatchMapping("/logout")
+	@PostMapping("/logout")
 	@Operation(summary = "로그아웃", description = "로그아웃 처리")
 	public ResponseEntity<String> logout(@AuthenticationPrincipal Member member){
 		memberService.logout(member);

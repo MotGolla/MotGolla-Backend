@@ -13,8 +13,9 @@ public enum ErrorCode {
     /* AUTH ERROR */
     INVALID_ACCESS_TOKEN(401, "AUTH001", "Invalid Access Token"),
     INVALID_REFRESH_TOKEN(401, "AUTH002", "Invalid Refresh Token"),
-    LOGIN_FAILED(400, "AUTH003", "Login Failed"),
-    INVALID_ID_TOKEN(400, "AUTH004", "Invalid ID Token"),
+    LOGIN_FAILED(401, "AUTH003", "Login Failed"),
+    RECENT_RESIGNED_MEMBER(401, "AUTH004", "Recent Resigned Member"),
+    INVALID_ID_TOKEN(401, "AUTH005", "Invalid ID Token"),
 
     /* MEMBER ERROR */
     MEMBER_NOT_FOUND(404, "MEMBER001", "Member Not Found"),

@@ -24,7 +24,9 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.LOGIN_FAILED);
+        ErrorCode errorCode = exception.getMessage().equals(ErrorCode.RECENT_RESIGNED_MEMBER.getCode()) ? ErrorCode.RECENT_RESIGNED_MEMBER :  ErrorCode.LOGIN_FAILED;
+        ErrorResponse errorResponse = ErrorResponse.of(errorCode);
+
         ResponseEntity<ErrorResponse> entity = ResponseEntity
                 .status(HttpServletResponse.SC_UNAUTHORIZED)
                 .body(errorResponse);

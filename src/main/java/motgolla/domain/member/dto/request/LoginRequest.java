@@ -7,6 +7,9 @@ public record LoginRequest(
     String idToken,
 
     @Schema(description = "소셜 로그인에서 받은 고유 식별자", example = "kakao_123456")
-    String oauthId
+    String oauthId,
+
+    @Schema(description = "재로그인 여부(6개월 이내 탈퇴 회원) 기본값 false", example = "false")
+    boolean reSignUp
 ) {
 }
