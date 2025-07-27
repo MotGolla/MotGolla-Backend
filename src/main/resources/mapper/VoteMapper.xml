@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="motgolla.domain.vote.mapper.VoteMapper">
+
+    <insert id="insertVoteGroup">
+        INSERT INTO VOTE_GROUP (ID, TITLE, MEMBER_ID, CREATED_AT, CREATED_BY)
+        VALUES (VOTE_GROUP_SEQ.NEXTVAL, #{title}, #{memberId}, SYSTIMESTAMP, #{memberId})
+    </insert>
+
+    <select id="getLastInsertedVoteGroupId" resultType="long">
+        SELECT VOTE_GROUP_SEQ.CURRVAL FROM DUAL
+    </select>
+
+    <select id="findProductIdsByRecordIds" resultType="long">
+        SELECT PRODUCT_ID FROM RECORD WHERE ID IN
+        <foreach item="id" collection="recordIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="insertVoteCandidate">
+        INSERT INTO VOTE_CANDIDATE (
+        ID, VOTE_GROUP_ID, RECORD_ID, CREATED_AT, CREATED_BY
+        )
+        VALUES (
+        VOTE_CANDIDATE_SEQ.NEXTVAL, #{voteGroupId}, #{recordId}, SYSTIMESTAMP, #{memberId}
+        )
+    </insert>
+</mapper>
