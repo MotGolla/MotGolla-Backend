@@ -13,6 +13,4 @@ public interface RecommendMapper {
         @Param("productId") Long productId,
         @Param("recommendedIds") List<String> recommendedIds
     );
-
-    List<RecommendedProduct> findRecommendationsById(@Param("productId") Long productId);
 }
