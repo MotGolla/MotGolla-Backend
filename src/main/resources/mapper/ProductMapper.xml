@@ -34,6 +34,7 @@
         SELECT
         P.ID,
         P.NAME,
+        P.IMAGE_URL AS imageUrl,
         B.BRAND_NAME AS BRAND,
         DSB.FLOOR,
         P.PRICE

@@ -11,4 +11,5 @@ public class RecommendedProduct{
 	private String brand;
 	private int floor;
 	private int price;
+	private String imageUrl;
 }
