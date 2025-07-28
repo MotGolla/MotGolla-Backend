@@ -1,10 +1,13 @@
 package motgolla.domain.record.mapper;
 
 import java.util.List;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import motgolla.domain.record.dto.ProductToBarcodeScanDto;
+import motgolla.domain.record.dto.request.RecordProductFilterRequest;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
+import motgolla.domain.record.dto.response.RecordProductFilterResponse;
 import motgolla.domain.record.dto.response.RecordDetailResponse;
 import motgolla.domain.record.dto.response.StoreLocationInfo;
 import org.apache.ibatis.annotations.Mapper;
@@ -42,4 +45,22 @@ public interface RecordMapper {
 
   StoreLocationInfo findStoreLocationInfoByRecordId(@Param("recordId") Long recordId);
 
+
+  // 날짜와 카테고리 커서 기반 상품 페이지 조회
+  List<RecordProductFilterResponse> findFilteredProductsByCursor(
+      @Param("memberId") Long memberId,
+      @Param("request") RecordProductFilterRequest request
+  );
+
+  // 상태 변경
+  int  updateRecordStatus(
+      @Param("memberId") Long memberId,
+      @Param("recordId") Long recordId,
+      @Param("status") String status);
+
+
+  // 사용자 월별 상품기록 조회
+  List<String> findRecordDatesByYearMonth(
+      @Param("memberId") Long memberId,
+      @Param("yearMonth") String yearMonth);
 }

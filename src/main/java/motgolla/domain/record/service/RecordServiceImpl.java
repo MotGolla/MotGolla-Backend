@@ -5,7 +5,9 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import motgolla.domain.record.dto.ProductToBarcodeScanDto;
+import motgolla.domain.record.dto.request.RecordProductFilterRequest;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
+import motgolla.domain.record.dto.response.RecordProductFilterResponse;
 import motgolla.domain.record.dto.response.RecordDetailResponse;
 import motgolla.domain.record.dto.response.StoreLocationInfo;
 import motgolla.domain.record.mapper.RecordMapper;
@@ -65,8 +67,6 @@ public class RecordServiceImpl implements RecordService {
         }
       }
     }
-
-
   }
 
   @Override
@@ -84,7 +84,7 @@ public class RecordServiceImpl implements RecordService {
     RecordDetailResponse record = recordMapper.findRecordMainById(recordId);
     if (record == null) {
       throw new BusinessException(
-              ErrorCode.RECORD_NOT_FOUND
+          ErrorCode.RECORD_NOT_FOUND
       );
     }
 
@@ -101,4 +101,38 @@ public class RecordServiceImpl implements RecordService {
 
     return record;
   }
+
+  @Override
+  public List<RecordProductFilterResponse> getProductsByCursor(Long memberId,
+      RecordProductFilterRequest request) {
+
+    // limit 기본값 설정
+    if (request.getLimit() == null || request.getLimit() <= 0) {
+      request.setLimit(10);
+    }
+
+    // "전체"가 들어오면 null 처리하여 쿼리에서 필터링 제외
+    if ("전체".equals(request.getCategory())) {
+      request.setCategory(null);
+    }
+
+    return recordMapper.findFilteredProductsByCursor(memberId, request);
+  }
+
+  public void updateRecordStatus(Long memberId, Long recordId, String status) {
+    int count = recordMapper.updateRecordStatus(memberId, recordId, status);
+    if (count == 0) {
+      throw new BusinessException(ErrorCode.RECORD_UPDATE_FAILED);
+    }
+  }
+
+  @Override
+  public List<String> findRecordDatesByYearMonth(Long memberId, String yearMonth) {
+    List<String> recordDatesByYearMonth = recordMapper.findRecordDatesByYearMonth(memberId,
+        yearMonth);
+    return recordDatesByYearMonth;
+  }
+
+
+
 }
