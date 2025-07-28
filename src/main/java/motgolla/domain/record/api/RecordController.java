@@ -17,6 +17,7 @@ import motgolla.domain.record.dto.request.RecordProductFilterRequest;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
 import motgolla.domain.record.dto.request.UpdateRecordStatusRequest;
 import motgolla.domain.record.dto.response.MemoSummaryResponse;
+import motgolla.domain.record.dto.response.RecordDatesResponse;
 import motgolla.domain.record.dto.response.RecordDetailResponse;
 import motgolla.domain.record.dto.response.RecordProductFilterListResponse;
 import motgolla.domain.record.dto.response.RecordProductFilterResponse;
@@ -138,4 +139,21 @@ public class RecordController {
     return ResponseEntity.ok().build();
   }
 
+  @Operation(
+      summary = "특정 년-월의 쇼핑 기록 날짜 조회",
+      description = "사용자의 특정 년-월(예: 2025-07)에 해당하는 쇼핑 기록 날짜 목록을 조회합니다."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "조회 성공"),
+      @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+      @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+  })
+  @GetMapping("/dates")
+  public ResponseEntity<RecordDatesResponse> findRecordDatesByYearMonth(
+      @AuthenticationPrincipal Member member,
+      @RequestParam String yearMonth
+  ) {
+    List<String> result = recordService.findRecordDatesByYearMonth(member.getId(), yearMonth);
+    return ResponseEntity.ok(new RecordDatesResponse(result));
+  }
 }

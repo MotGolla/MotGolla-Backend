@@ -59,4 +59,8 @@ public interface RecordMapper {
       @Param("status") String status);
 
 
+  // 사용자 월별 상품기록 조회
+  List<String> findRecordDatesByYearMonth(
+      @Param("memberId") Long memberId,
+      @Param("yearMonth") String yearMonth);
 }

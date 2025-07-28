@@ -126,4 +126,13 @@ public class RecordServiceImpl implements RecordService {
     }
   }
 
+  @Override
+  public List<String> findRecordDatesByYearMonth(Long memberId, String yearMonth) {
+    List<String> recordDatesByYearMonth = recordMapper.findRecordDatesByYearMonth(memberId,
+        yearMonth);
+    return recordDatesByYearMonth;
+  }
+
+
+
 }
