@@ -173,6 +173,14 @@
     AND MEMBER_ID = #{memberId}
   </update>
 
+  <select id="findRecordDatesByYearMonth" resultType="string">
+    SELECT DISTINCT TO_CHAR(CREATED_AT, 'YYYY-MM-DD') AS record_date
+    FROM RECORD
+    WHERE MEMBER_ID = #{memberId}
+    AND TO_CHAR(CREATED_AT, 'YYYY-MM') = #{yearMonth}
+    ORDER BY record_date ASC
+  </select>
+
 
 </mapper>
 

@@ -24,5 +24,6 @@ public interface RecordService {
        Long recordId,
        String status);
 
+  public List<String> findRecordDatesByYearMonth(Long memberId, String yearMonth);
 }
 
