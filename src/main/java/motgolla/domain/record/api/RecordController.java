@@ -16,6 +16,7 @@ import motgolla.domain.record.dto.request.MemoSummaryRequest;
 import motgolla.domain.record.dto.request.RecordProductFilterRequest;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
 import motgolla.domain.record.dto.response.MemoSummaryResponse;
+import motgolla.domain.record.dto.response.RecordDetailResponse;
 import motgolla.domain.record.dto.response.RecordProductFilterListResponse;
 import motgolla.domain.record.dto.response.RecordProductFilterResponse;
 import motgolla.domain.record.dto.response.RecordRegisterResponse;
@@ -24,6 +25,7 @@ import motgolla.domain.record.service.RecordService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,6 +77,18 @@ public class RecordController {
     log.info("summarizeMemo() :: {}", request);
     String summaryMemo = memoSummarizer.analyze(request.getSttMemo());
     return ResponseEntity.ok().body(new MemoSummaryResponse(summaryMemo));
+  }
+
+
+  @Operation(
+          summary = "Record 상세 조회",
+          description = "Record ID를 기반으로 상세 정보를 조회합니다."
+  )
+  @GetMapping("/{recordId}")
+  public RecordDetailResponse getRecordDetail(
+          @Parameter(description = "조회할 Record의 ID", example = "1")
+          @PathVariable Long recordId) {
+    return recordService.getRecordDetail(recordId);
   }
 
 

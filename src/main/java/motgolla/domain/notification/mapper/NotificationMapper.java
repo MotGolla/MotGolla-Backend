@@ -10,5 +10,5 @@ public interface NotificationMapper {
     void insertToken(@Param("memberId") Long memberId, @Param("token") String token);
     List<Long> findUserIdsWhoRegisteredToday();
     String findTokenByUserId(@Param("memberId") Long memberId);
-
+    void deleteToken(@Param("memberId") Long id);
 }

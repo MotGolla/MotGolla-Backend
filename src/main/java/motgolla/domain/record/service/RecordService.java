@@ -6,6 +6,7 @@ import motgolla.domain.record.dto.request.RecordProductFilterRequest;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
 import motgolla.domain.record.dto.response.RecordProductFilterResponse;
 import org.apache.ibatis.annotations.Param;
+import motgolla.domain.record.dto.response.RecordDetailResponse;
 
 public interface RecordService {
 
@@ -13,6 +14,7 @@ public interface RecordService {
 
   ProductToBarcodeScanDto confirmProductByBarcode(String barcode);
 
+  RecordDetailResponse getRecordDetail(Long recordId);
   List<RecordProductFilterResponse> getProductsByCursor(Long memberId,
       RecordProductFilterRequest request);
 }

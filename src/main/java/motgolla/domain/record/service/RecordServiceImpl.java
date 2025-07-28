@@ -1,23 +1,22 @@
 package motgolla.domain.record.service;
 
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import motgolla.domain.record.dto.ProductToBarcodeScanDto;
 import motgolla.domain.record.dto.request.RecordProductFilterRequest;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
 import motgolla.domain.record.dto.response.RecordProductFilterResponse;
+import motgolla.domain.record.dto.response.RecordDetailResponse;
+import motgolla.domain.record.dto.response.StoreLocationInfo;
 import motgolla.domain.record.mapper.RecordMapper;
 import motgolla.global.error.ErrorCode;
 import motgolla.global.error.exception.BusinessException;
 import motgolla.infra.file.FileService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @Service
@@ -78,6 +77,29 @@ public class RecordServiceImpl implements RecordService {
         ErrorCode.BARCODE_INFO_NOT_FOUND
     ));
     return barcodeScanInfo.get();
+  }
+
+  @Override
+  public RecordDetailResponse getRecordDetail(Long recordId) {
+    RecordDetailResponse record = recordMapper.findRecordMainById(recordId);
+    if (record == null) {
+      throw new BusinessException(
+              ErrorCode.RECORD_NOT_FOUND
+      );
+    }
+
+    // 1. 일반 이미지
+    record.setImageUrls(recordMapper.findImageUrlsByRecordId(recordId));
+
+    // 2. 태그 이미지 (1개만 존재)
+    record.setTagImageUrl(recordMapper.findTagImageUrlByRecordId(recordId));
+
+    // 3. 브랜드 위치 처리 (gender + location 로직 재사용)
+    StoreLocationInfo locationInfo = recordMapper.findStoreLocationInfoByRecordId(recordId);
+    record.setBrandLocationInfo(locationInfo.getBrandLocationInfo());
+    record.setStoreMapLink(locationInfo.getStoreMapLink());
+
+    return record;
   }
 
   @Override

@@ -22,7 +22,7 @@ public class NotificationScheduler {
     //매일 22시에 실행
     @Scheduled(cron = "0 0 22 * * *") // 초 분 시 일 월 요일
     //테스트용 :
-    //@Scheduled(cron = "0 10 * * * *") // 초 분 시 일 월 요일
+    //@Scheduled(cron = "0 24 * * * *") // 초 분 시 일 월 요일
     public void sendDailyReminder() {
         log.info("💬 [FCM Scheduler] 22시 알림 전송 시작");
 
