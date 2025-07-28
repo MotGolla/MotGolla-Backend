@@ -89,7 +89,7 @@ public class RecordController {
   @GetMapping("/{recordId}")
   public RecordDetailResponse getRecordDetail(
       @Parameter(description = "조회할 Record의 ID", example = "1")
-      @PathVariable Long recordId) {
+      @PathVariable("recordId") Long recordId) {
     return recordService.getRecordDetail(recordId);
   }
 
