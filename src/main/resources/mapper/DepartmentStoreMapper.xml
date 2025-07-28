@@ -24,5 +24,8 @@
         FETCH FIRST 1 ROWS ONLY
     </select>
 
+    <select id="findAllStores" resultType="motgolla.domain.departmentStore.dto.response.DepartmentStoreIdResponse">
+        SELECT ID, STORE_NAME FROM DEPARTMENT_STORE
+    </select>
 
 </mapper>
