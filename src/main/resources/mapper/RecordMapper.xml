@@ -166,5 +166,13 @@
   </select>
 
 
+  <update id="updateRecordStatus">
+    UPDATE RECORD
+    SET PRODUCT_STATUS = #{status}
+    WHERE ID = #{recordId}
+    AND MEMBER_ID = #{memberId}
+  </update>
+
+
 </mapper>
 

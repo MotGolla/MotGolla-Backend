@@ -15,6 +15,14 @@ public interface RecordService {
   ProductToBarcodeScanDto confirmProductByBarcode(String barcode);
 
   RecordDetailResponse getRecordDetail(Long recordId);
+
   List<RecordProductFilterResponse> getProductsByCursor(Long memberId,
       RecordProductFilterRequest request);
+
+  void updateRecordStatus(
+       Long memberId,
+       Long recordId,
+       String status);
+
 }
+

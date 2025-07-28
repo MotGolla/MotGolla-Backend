@@ -51,4 +51,12 @@ public interface RecordMapper {
       @Param("memberId") Long memberId,
       @Param("request") RecordProductFilterRequest request
   );
+
+  // 상태 변경
+  int  updateRecordStatus(
+      @Param("memberId") Long memberId,
+      @Param("recordId") Long recordId,
+      @Param("status") String status);
+
+
 }

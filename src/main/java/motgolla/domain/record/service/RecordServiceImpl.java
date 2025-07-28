@@ -84,7 +84,7 @@ public class RecordServiceImpl implements RecordService {
     RecordDetailResponse record = recordMapper.findRecordMainById(recordId);
     if (record == null) {
       throw new BusinessException(
-              ErrorCode.RECORD_NOT_FOUND
+          ErrorCode.RECORD_NOT_FOUND
       );
     }
 
@@ -117,6 +117,13 @@ public class RecordServiceImpl implements RecordService {
     }
 
     return recordMapper.findFilteredProductsByCursor(memberId, request);
+  }
+
+  public void updateRecordStatus(Long memberId, Long recordId, String status) {
+    int count = recordMapper.updateRecordStatus(memberId, recordId, status);
+    if (count == 0) {
+      throw new BusinessException(ErrorCode.RECORD_UPDATE_FAILED);
+    }
   }
 
 }

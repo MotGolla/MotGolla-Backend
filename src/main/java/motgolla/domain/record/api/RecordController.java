@@ -15,6 +15,7 @@ import motgolla.domain.member.vo.Member;
 import motgolla.domain.record.dto.request.MemoSummaryRequest;
 import motgolla.domain.record.dto.request.RecordProductFilterRequest;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
+import motgolla.domain.record.dto.request.UpdateRecordStatusRequest;
 import motgolla.domain.record.dto.response.MemoSummaryResponse;
 import motgolla.domain.record.dto.response.RecordDetailResponse;
 import motgolla.domain.record.dto.response.RecordProductFilterListResponse;
@@ -81,13 +82,13 @@ public class RecordController {
 
 
   @Operation(
-          summary = "Record 상세 조회",
-          description = "Record ID를 기반으로 상세 정보를 조회합니다."
+      summary = "Record 상세 조회",
+      description = "Record ID를 기반으로 상세 정보를 조회합니다."
   )
   @GetMapping("/{recordId}")
   public RecordDetailResponse getRecordDetail(
-          @Parameter(description = "조회할 Record의 ID", example = "1")
-          @PathVariable Long recordId) {
+      @Parameter(description = "조회할 Record의 ID", example = "1")
+      @PathVariable Long recordId) {
     return recordService.getRecordDetail(recordId);
   }
 
@@ -116,4 +117,25 @@ public class RecordController {
     log.info("getProducts() :: {} id :: {} ", items, member.getId());
     return ResponseEntity.ok(new RecordProductFilterListResponse(items, nextCursor, hasNext));
   }
+
+
+  @Operation(
+      summary = "기록 상태 변경",
+      description = "사용자의 쇼핑 기록 상태를 COMPLETED로 변경합니다."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+      @ApiResponse(responseCode = "404", description = "기록 없음", content = @Content),
+      @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+  })
+  @PatchMapping("/{recordId}/status")
+  public ResponseEntity<Void> updateRecordStatus(
+      @PathVariable Long recordId,
+      @AuthenticationPrincipal Member member,
+      @RequestBody UpdateRecordStatusRequest request
+  ) {
+    recordService.updateRecordStatus(member.getId(), recordId, request.getStatus());
+    return ResponseEntity.ok().build();
+  }
+
 }
