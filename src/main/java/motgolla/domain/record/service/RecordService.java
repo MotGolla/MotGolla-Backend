@@ -1,12 +1,18 @@
 package motgolla.domain.record.service;
 
+import java.util.List;
 import motgolla.domain.record.dto.ProductToBarcodeScanDto;
+import motgolla.domain.record.dto.request.RecordProductFilterRequest;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
+import motgolla.domain.record.dto.response.RecordProductFilterResponse;
+import org.apache.ibatis.annotations.Param;
 
 public interface RecordService {
 
-  void registerRecord(RecordRegisterRequest recordRegisterRequest ,Long memberId);
+  void registerRecord(RecordRegisterRequest recordRegisterRequest, Long memberId);
 
   ProductToBarcodeScanDto confirmProductByBarcode(String barcode);
 
+  List<RecordProductFilterResponse> getProductsByCursor(Long memberId,
+      RecordProductFilterRequest request);
 }

@@ -81,6 +81,41 @@
     )
   </insert>
 
-
+  <select id="findFilteredProductsByCursor"
+    resultType="motgolla.domain.record.dto.response.RecordProductFilterResponse">
+    SELECT
+    r.ID                            AS record_id,
+    r.PRODUCT_STATUS                AS state,
+    ri.IMAGE_URL                    AS img_url,
+    p.NAME                          AS product_name,
+    b.BRAND_NAME                    AS brand_name,
+    CONCAT(dsb.FLOOR, 'F')          AS brand_floor,
+    TO_CHAR(p.PRICE, 'FM999,999,999') || '원' AS product_price
+    FROM RECORD r
+    JOIN PRODUCT p ON r.PRODUCT_ID = p.ID
+    JOIN BRAND b ON p.BRAND_ID = b.ID
+    JOIN DEPARTMENT_STORE_BRAND dsb ON r.DEPARTMENT_STORE_BRAND_ID = dsb.ID
+    LEFT JOIN (
+    SELECT ri1.RECORD_ID, ri1.IMAGE_URL
+    FROM RECORD_IMAGE ri1
+    WHERE ri1.IMAGE_TYPE = 'RECORD'
+    AND ri1.ID IN (
+    SELECT MAX(ri2.ID)
+    FROM RECORD_IMAGE ri2
+    WHERE ri2.IMAGE_TYPE = 'RECORD'
+    GROUP BY ri2.RECORD_ID
+    )
+    ) ri ON r.ID = ri.RECORD_ID
+    WHERE r.MEMBER_ID = #{memberId}
+    AND TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD') = #{request.date}
+    <if test="request.category != null and request.category != ''">
+      AND p.CATEGORY = #{request.category}
+    </if>
+    <if test="request.cursor != null">
+      AND r.ID &lt; #{request.cursor}
+    </if>
+    ORDER BY r.ID DESC
+    FETCH FIRST #{request.limit} ROWS ONLY
+  </select>
 </mapper>
 

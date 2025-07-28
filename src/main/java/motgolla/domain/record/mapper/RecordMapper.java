@@ -1,8 +1,11 @@
 package motgolla.domain.record.mapper;
 
+import java.util.List;
 import java.util.Optional;
 import motgolla.domain.record.dto.ProductToBarcodeScanDto;
+import motgolla.domain.record.dto.request.RecordProductFilterRequest;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
+import motgolla.domain.record.dto.response.RecordProductFilterResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
@@ -30,4 +33,10 @@ public interface RecordMapper {
   // 현재 백화점에 있는 브랜드 찾기
   Long findDepartmentStoreBrand(@Param("brand") String brandName,
       @Param("departmentStoreId") Long departmentStoreId);
+
+  // 날짜와 카테고리 커서 기반 상품 페이지 조회
+  List<RecordProductFilterResponse> findFilteredProductsByCursor(
+      @Param("memberId") Long memberId,
+      @Param("request") RecordProductFilterRequest request
+  );
 }
