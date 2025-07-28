@@ -8,7 +8,7 @@ public enum ErrorCode {
     /* COMMON ERROR */
     INTERNAL_SERVER_ERROR(500, "COMMON001", "Internal Server Error"),
     INVALID_INPUT_VALUE(400, "COMMON002", "Invalid Input Value"),
-    ENTITY_NOT_FOUND(400, "COMMON003", "Entity Not Found"),
+    ENTITY_NOT_FOUND(404, "COMMON003", "Entity Not Found"),
 
     /* AUTH ERROR */
     INVALID_ACCESS_TOKEN(401, "AUTH001", "Invalid Access Token"),
@@ -30,7 +30,10 @@ public enum ErrorCode {
     OPENAI_API_CALL_FAILED(500, "OPENAI002", "OpenAI API 호출에 실패했습니다."),
 
     /* RECORD ERROR */
-    RECORD_NOT_FOUND(404, "RECORD001", "등록된 기록 정보를 찾을 수 없습니다.");
+    RECORD_NOT_FOUND(404, "RECORD001", "등록된 기록 정보를 찾을 수 없습니다."),
+
+    /* PRODUCT ERROR */
+    PRODUCT_NOT_FOUND(404, "PRODUCT001", "Product Not Found");
 
     private final int status;
     private final String code;

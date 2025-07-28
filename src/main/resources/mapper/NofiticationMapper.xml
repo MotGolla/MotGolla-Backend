@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="motgolla.domain.notification.mapper.NotificationMapper">
+
+    <!-- 한 유저당 하나의 디바이스(token)을 가지고 있다고 가정   -->
+    <insert id="insertToken">
+        MERGE INTO fcm_token t
+        USING (
+        SELECT
+        #{memberId} AS member_id,
+        #{token} AS token
+        FROM dual
+        ) s
+        ON (t.member_id = s.member_id)
+        WHEN MATCHED THEN
+        UPDATE SET
+        t.token = s.token,
+        t.updated_at = SYSDATE
+        WHEN NOT MATCHED THEN
+        INSERT (id, member_id, token, created_at, created_by, updated_at)
+        VALUES (FCM_SEQ.NEXTVAL, s.member_id, s.token, SYSDATE, s.member_id, SYSDATE)
+    </insert>
+
+    <select id="findUserIdsWhoRegisteredToday" resultType="java.lang.Long">
+        SELECT DISTINCT MEMBER_ID
+        FROM record
+        WHERE created_at &gt;= TRUNC(SYSDATE)
+        AND created_at &lt; TRUNC(SYSDATE + 1)
+    </select>
+
+    <select id="findTokenByUserId" resultType="string">
+        SELECT token FROM fcm_token WHERE member_id = #{memberId}
+    </select>
+
+    <delete id="deleteToken">
+        DELETE FROM fcm_token WHERE member_id = #{memberId}
+    </delete>
+
+</mapper>

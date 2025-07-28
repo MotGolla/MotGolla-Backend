@@ -42,3 +42,6 @@ local.env
 *.env
 application.properties
 src/main/resources/wallet/
+
+### firebase SDK ###
+src/main/resources/firebase/serviceAccountKey.json
