@@ -2,6 +2,7 @@ package motgolla.domain.vote.dto.response;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter @Setter
@@ -10,8 +11,11 @@ import java.util.List;
 public class VoteDetailResponse {
     private Long voteGroupId;
     private String title;
-    private boolean isMine;
-    private boolean isVotedByMe;
+    private String profileImage;
+    private String nickname;
+    private String timeAgo;
+    private boolean mine;
+    private boolean votedByMe;
     private List<CandidateResult> candidates;
 
     @Getter @Setter
