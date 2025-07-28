@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="motgolla.domain.vote.mapper.VoteMapper">
+
+    <insert id="insertVoteGroup">
+        INSERT INTO VOTE_GROUP (ID, TITLE, MEMBER_ID, CREATED_AT, CREATED_BY)
+        VALUES (VOTE_GROUP_SEQ.NEXTVAL, #{title}, #{memberId}, SYSTIMESTAMP, #{memberId})
+    </insert>
+
+    <select id="getLastInsertedVoteGroupId" resultType="long">
+        SELECT VOTE_GROUP_SEQ.CURRVAL FROM DUAL
+    </select>
+
+    <select id="findProductIdsByRecordIds" resultType="long">
+        SELECT PRODUCT_ID FROM RECORD WHERE ID IN
+        <foreach item="id" collection="recordIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="insertVoteCandidate">
+        INSERT INTO VOTE_CANDIDATE (
+        ID, VOTE_GROUP_ID, RECORD_ID, CREATED_AT, CREATED_BY
+        )
+        VALUES (
+        VOTE_CANDIDATE_SEQ.NEXTVAL, #{voteGroupId}, #{recordId}, SYSTIMESTAMP, #{memberId}
+        )
+    </insert>
+
+    <select id="findVoteDetails" resultType="motgolla.domain.vote.dto.VoteDetailDto">
+        SELECT
+            vg.ID AS voteGroupId,
+            vg.TITLE AS voteTitle,
+            CASE WHEN vg.MEMBER_ID = #{memberId} THEN 1 ELSE 0 END AS isMine,
+            CASE WHEN EXISTS (SELECT 1 FROM PRODUCT_VOTE pv2 WHERE pv2.VOTE_GROUP_ID = vg.ID AND pv2.MEMBER_ID = #{memberId}) THEN 1 ELSE 0 END AS isVotedByMe,
+            vc.ID AS candidateId,
+            vc.RECORD_ID AS recordId,
+            COUNT(pv.ID) AS voteCount,
+            (SELECT COUNT(*) FROM PRODUCT_VOTE pv3 WHERE pv3.VOTE_GROUP_ID = vg.ID) AS totalVotes,
+            (
+                SELECT ri.IMAGE_URL
+                FROM RECORD_IMAGE ri
+                WHERE ri.RECORD_ID = vc.RECORD_ID AND ri.IMAGE_TYPE = 'RECORD' AND ROWNUM = 1
+            ) AS imageUrl
+        FROM VOTE_GROUP vg
+        JOIN VOTE_CANDIDATE vc ON vc.VOTE_GROUP_ID = vg.ID
+        LEFT JOIN PRODUCT_VOTE pv ON pv.VOTE_CANDIDATE_ID = vc.ID
+        WHERE
+            <choose>
+                <when test="type == 'mine'">
+                    vg.MEMBER_ID = #{memberId}
+                </when>
+                <when test="type == 'voted'">
+                    EXISTS (
+                    SELECT 1 FROM PRODUCT_VOTE pvx
+                    WHERE pvx.VOTE_GROUP_ID = vg.ID AND pvx.MEMBER_ID = #{memberId}
+                    )
+                </when>
+                <otherwise>
+                    1 = 1
+                </otherwise>
+            </choose>
+        GROUP BY vg.ID, vg.TITLE, vg.MEMBER_ID, vc.ID, vc.RECORD_ID
+    </select>
+
+    <insert id="insertVote">
+        INSERT INTO PRODUCT_VOTE (
+            ID, MEMBER_ID, VOTE_GROUP_ID, VOTE_CANDIDATE_ID,
+            CREATED_AT, CREATED_BY
+        ) VALUES (
+            PRODUCT_VOTE_SEQ.NEXTVAL,
+            #{memberId},
+            #{voteGroupId},
+            #{voteCandidateId},
+            SYSTIMESTAMP,
+            #{memberId}
+        )
+    </insert>
+</mapper>
