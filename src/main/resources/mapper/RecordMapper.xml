@@ -87,7 +87,7 @@
     p.NAME AS productName,
     b.BRAND_NAME AS brandName,
     p.PRICE AS productPrice,
-    TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD HH24:MI') AS recordCreatedAt,
+    TO_CHAR(r.CREATED_AT, 'YYYY.MM.DD HH24:MI') AS recordCreatedAt,
     r.PRODUCT_SIZE AS productSize,
     p.PRODUCT_NUMBER AS productNumber,
     r.PRODUCT_STATUS AS productStatus,
@@ -119,12 +119,16 @@
     FETCH FIRST 1 ROWS ONLY
   </select>
 
-  <select id="findBrandLocationInfoByRecordId" resultType="string">
-    SELECT NVL(dsb.GENDER, '') || '|' || dsb.BRAND_LOCATION_INFO
+  <select id="findStoreLocationInfoByRecordId"
+          resultType="motgolla.domain.record.dto.response.StoreLocationInfo">
+    SELECT
+    dsb.BRAND_LOCATION_INFO AS brandLocationInfo,
+    dsb.MAP_LINK AS storeMapLink
     FROM RECORD r
     JOIN DEPARTMENT_STORE_BRAND dsb ON r.DEPARTMENT_STORE_BRAND_ID = dsb.ID
     WHERE r.ID = #{recordId}
   </select>
+
 
 </mapper>
 

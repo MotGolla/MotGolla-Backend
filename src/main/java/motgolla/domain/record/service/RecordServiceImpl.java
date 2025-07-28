@@ -7,15 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import motgolla.domain.record.dto.ProductToBarcodeScanDto;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
 import motgolla.domain.record.dto.response.RecordDetailResponse;
+import motgolla.domain.record.dto.response.StoreLocationInfo;
 import motgolla.domain.record.mapper.RecordMapper;
 import motgolla.global.error.ErrorCode;
 import motgolla.global.error.exception.BusinessException;
 import motgolla.infra.file.FileService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @Service
@@ -96,25 +95,10 @@ public class RecordServiceImpl implements RecordService {
     record.setTagImageUrl(recordMapper.findTagImageUrlByRecordId(recordId));
 
     // 3. 브랜드 위치 처리 (gender + location 로직 재사용)
-    List<String> rawLocations = recordMapper.findBrandLocationInfoByRecordId(recordId);
-    List<String> result = new ArrayList<>();
+    StoreLocationInfo locationInfo = recordMapper.findStoreLocationInfoByRecordId(recordId);
+    record.setBrandLocationInfo(locationInfo.getBrandLocationInfo());
+    record.setStoreMapLink(locationInfo.getStoreMapLink());
 
-    if (rawLocations.size() == 1) {
-      result.add(rawLocations.get(0).split("\\|")[1]);
-    } else {
-      for (String raw : rawLocations) {
-        String[] parts = raw.split("\\|");
-        String gender = parts[0];
-        String location = parts[1];
-        if (gender == null || gender.isBlank()) {
-          result.add(location);
-        } else {
-          result.add(gender + " " + location);
-        }
-      }
-    }
-
-    record.setBrandLocationInfo(result);
     return record;
   }
 }

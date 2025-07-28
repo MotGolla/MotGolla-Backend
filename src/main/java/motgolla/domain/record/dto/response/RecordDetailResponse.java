@@ -1,6 +1,7 @@
 package motgolla.domain.record.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class RecordDetailResponse {
     @Schema(description = "상품 가격", example = "1830000")
     private Integer productPrice;
 
-    @Schema(description = "기록 생성일시", example = "2025-07-27T14:30:00")
+    @Schema(description = "기록 생성일시", example = "2025-07-27 14:30")
     private String recordCreatedAt;
 
     @Schema(description = "상품 사이즈", example = "L")
@@ -36,9 +37,6 @@ public class RecordDetailResponse {
     @Schema(description = "기록 요약", example = "핏이 마음에 든다")
     private String productSummary;
 
-    @Schema(description = "브랜드 위치 정보 (복수 가능)", example = "[\"남성 3F\", \"공용 B1\"]")
-    private List<String> brandLocationInfo;
-
     @Schema(description = "기록 이미지 URL 목록")
     private List<String> imageUrls;
 
@@ -48,7 +46,13 @@ public class RecordDetailResponse {
     @Schema(description = "백화점 이름", example = "현대백화점 무역센터점")
     private String storeName;
 
-    @Schema(description = "백화점 지도 링크", example = "https://naver.me/abc123")
+    @Schema(description = "백화점 지도 링크", example = "https://place.map.kakao.com/21297272")
     private String mapLink;
+
+    @Schema(description = "브랜드 위치 정보", example = "B2")
+    private String brandLocationInfo;
+
+    @Schema(description = "브랜드 위치의 지도 링크", example = "https://naver.me/abc123")
+    private String storeMapLink;
 
 }

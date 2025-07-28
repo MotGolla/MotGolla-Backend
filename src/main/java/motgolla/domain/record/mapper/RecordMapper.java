@@ -1,13 +1,14 @@
 package motgolla.domain.record.mapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import motgolla.domain.record.dto.ProductToBarcodeScanDto;
 import motgolla.domain.record.dto.request.RecordRegisterRequest;
 import motgolla.domain.record.dto.response.RecordDetailResponse;
+import motgolla.domain.record.dto.response.StoreLocationInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.security.core.parameters.P;
 
 @Mapper
 public interface RecordMapper {
@@ -35,9 +36,10 @@ public interface RecordMapper {
 
   RecordDetailResponse findRecordMainById(@Param("recordId") Long recordId);
 
-  List<String> findBrandLocationInfoByRecordId(@Param("recordId") Long recordId);
-
   List<String> findImageUrlsByRecordId(@Param("recordId") Long recordId);
 
-  String findTagImageUrlByRecordId(Long recordId);
+  String findTagImageUrlByRecordId(@Param("recordId") Long recordId);
+
+  StoreLocationInfo findStoreLocationInfoByRecordId(@Param("recordId") Long recordId);
+
 }
