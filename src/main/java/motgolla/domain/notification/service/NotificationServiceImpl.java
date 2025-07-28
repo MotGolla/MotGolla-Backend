@@ -14,4 +14,9 @@ public class NotificationServiceImpl implements NotificationService {
     public void insertToken(Long id, String token) {
         notificationMapper.insertToken(id, token);
     }
+
+    @Override
+    public void deleteToken(Long id) {
+        notificationMapper.deleteToken(id);
+    }
 }

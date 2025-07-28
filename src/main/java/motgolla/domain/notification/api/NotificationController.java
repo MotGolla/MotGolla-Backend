@@ -34,4 +34,15 @@ public class NotificationController {
         response.put("message", "성공");
         return ResponseEntity.ok(response);
     }
+
+    //fcm 토큰 삭제
+    @DeleteMapping("/token")
+    @Operation(summary = "FCM토큰 삭제", description = "사용자별 FCM토큰 삭제 (알림 비활성화)")
+    public ResponseEntity<Map<String, String>> deleteToken(
+            @AuthenticationPrincipal Member member) {
+        notificationService.deleteToken(member.getId());
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "삭제 완료");
+        return ResponseEntity.ok(response);
+    }
 }
