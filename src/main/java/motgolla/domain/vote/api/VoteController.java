@@ -35,7 +35,7 @@ public class VoteController {
         return voteService.getVotes(member.getId(), type);
     }
 
-    @PostMapping("/{voteGroupId}/vote")
+    @PostMapping("/{voteGroupId}")
     public ResponseEntity<Void> vote(@PathVariable Long voteGroupId,
                                      @RequestBody VoteActionRequest request,
                                      @AuthenticationPrincipal Member member) {

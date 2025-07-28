@@ -33,36 +33,65 @@
         SELECT
             vg.ID AS voteGroupId,
             vg.TITLE AS voteTitle,
+            vg.CREATED_AT AS createdAt,
+            m.PROFILE AS profileImage,
+            m.NAME AS nickname,
+
             CASE WHEN vg.MEMBER_ID = #{memberId} THEN 1 ELSE 0 END AS isMine,
-            CASE WHEN EXISTS (SELECT 1 FROM PRODUCT_VOTE pv2 WHERE pv2.VOTE_GROUP_ID = vg.ID AND pv2.MEMBER_ID = #{memberId}) THEN 1 ELSE 0 END AS isVotedByMe,
+            CASE WHEN EXISTS (
+                SELECT 1 FROM PRODUCT_VOTE pv2
+                WHERE pv2.VOTE_GROUP_ID = vg.ID
+                    AND pv2.MEMBER_ID = #{memberId}
+            ) THEN 1 ELSE 0 END AS isVotedByMe,
+
             vc.ID AS candidateId,
             vc.RECORD_ID AS recordId,
             COUNT(pv.ID) AS voteCount,
-            (SELECT COUNT(*) FROM PRODUCT_VOTE pv3 WHERE pv3.VOTE_GROUP_ID = vg.ID) AS totalVotes,
+            (
+                SELECT COUNT(*)
+                FROM PRODUCT_VOTE pv3
+                WHERE pv3.VOTE_GROUP_ID = vg.ID
+            ) AS totalVotes,
+
             (
                 SELECT ri.IMAGE_URL
                 FROM RECORD_IMAGE ri
-                WHERE ri.RECORD_ID = vc.RECORD_ID AND ri.IMAGE_TYPE = 'RECORD' AND ROWNUM = 1
+                WHERE ri.RECORD_ID = vc.RECORD_ID
+                    AND ri.IMAGE_TYPE = 'RECORD'
+                    AND ROWNUM = 1
             ) AS imageUrl
+
         FROM VOTE_GROUP vg
         JOIN VOTE_CANDIDATE vc ON vc.VOTE_GROUP_ID = vg.ID
         LEFT JOIN PRODUCT_VOTE pv ON pv.VOTE_CANDIDATE_ID = vc.ID
+        JOIN MEMBER m ON m.ID = vg.MEMBER_ID
+
         WHERE
-            <choose>
-                <when test="type == 'mine'">
-                    vg.MEMBER_ID = #{memberId}
-                </when>
-                <when test="type == 'voted'">
-                    EXISTS (
-                    SELECT 1 FROM PRODUCT_VOTE pvx
-                    WHERE pvx.VOTE_GROUP_ID = vg.ID AND pvx.MEMBER_ID = #{memberId}
-                    )
-                </when>
-                <otherwise>
-                    1 = 1
-                </otherwise>
-            </choose>
-        GROUP BY vg.ID, vg.TITLE, vg.MEMBER_ID, vc.ID, vc.RECORD_ID
+        <choose>
+            <when test="type == 'MINE'">
+                vg.MEMBER_ID = #{memberId}
+            </when>
+            <when test="type == 'VOTED'">
+                EXISTS (
+                SELECT 1 FROM PRODUCT_VOTE pvx
+                WHERE pvx.VOTE_GROUP_ID = vg.ID
+                AND pvx.MEMBER_ID = #{memberId}
+                )
+            </when>
+            <otherwise>
+                1 = 1
+            </otherwise>
+        </choose>
+
+        GROUP BY
+            vg.ID,
+            vg.TITLE,
+            vg.MEMBER_ID,
+            vg.CREATED_AT,
+            m.PROFILE,
+            m.NAME,
+            vc.ID,
+            vc.RECORD_ID
     </select>
 
     <insert id="insertVote">
