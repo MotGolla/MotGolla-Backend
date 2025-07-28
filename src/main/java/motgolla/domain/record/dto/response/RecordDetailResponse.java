@@ -13,6 +13,9 @@ public class RecordDetailResponse {
     @Schema(description = "Record ID", example = "1")
     private Long recordId;
 
+    @Schema(description = "Product ID", example = "1")
+    private Long productId;
+
     @Schema(description = "상품 이름", example = "파인 메리노 울 4-바 클래식 카디건")
     private String productName;
 

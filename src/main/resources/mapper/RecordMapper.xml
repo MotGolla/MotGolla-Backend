@@ -120,6 +120,7 @@
   <select id="findRecordMainById" resultType="motgolla.domain.record.dto.response.RecordDetailResponse">
     SELECT
     r.ID AS recordId,
+    r.PRODUCT_ID AS productId,
     p.NAME AS productName,
     b.BRAND_NAME AS brandName,
     p.PRICE AS productPrice,
