@@ -35,5 +35,8 @@
         SELECT token FROM fcm_token WHERE member_id = #{memberId}
     </select>
 
+    <delete id="deleteToken">
+        DELETE FROM fcm_token WHERE member_id = #{memberId}
+    </delete>
 
 </mapper>
