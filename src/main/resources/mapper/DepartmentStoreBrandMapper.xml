@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="motgolla.domain.departmentStoreBrand.mapper.DepartmentStoreBrandMapper">
+
+    <select id="findBrandLocations" resultType="String">
+        SELECT COALESCE(GENDER, '') || ' ' || BRAND_LOCATION_INFO
+        FROM DEPARTMENT_STORE_BRAND dsb
+        JOIN BRAND b ON dsb.BRAND_ID = b.ID
+        WHERE dsb.DEPARTMENT_STORE_ID = #{departmentStoreId}
+        AND b.BRAND_NAME = #{brandName}
+    </select>
+
+
+</mapper>
