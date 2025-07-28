@@ -19,4 +19,23 @@
         </foreach>
     </insert>
 
+    <select id="findRecommendationsById" resultType="motgolla.domain.recommend.dto.response.RecommendedProduct">
+        SELECT *
+        FROM (
+        SELECT
+        P.ID,
+        P.NAME,
+        B.BRAND_NAME AS BRAND,
+        DSB.FLOOR,
+        P.PRICE
+        FROM PRODUCT P
+        LEFT JOIN BRAND B ON P.BRAND_ID = B.ID
+        LEFT JOIN DEPARTMENT_STORE_BRAND DSB ON P.BRAND_ID = DSB.BRAND_ID
+        LEFT JOIN RECOMMEND_RESULT R ON P.ID = R.TARGET_ID
+        WHERE R.SOURCE_ID = #{productId}
+        ORDER BY DBMS_RANDOM.VALUE
+        )
+        WHERE ROWNUM &lt;= 5
+    </select>
+
 </mapper>
