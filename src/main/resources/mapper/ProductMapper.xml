@@ -22,11 +22,11 @@
     </select>
 
     <select id="existsById" resultType="boolean">
-        SELECT
-        CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
         FROM PRODUCT
         WHERE ID = #{id}
     </select>
+
 
     <select id="findRecommendationsByProductId" resultType="motgolla.domain.recommend.dto.response.RecommendedProduct">
         SELECT *
