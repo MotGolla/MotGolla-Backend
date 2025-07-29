@@ -109,7 +109,7 @@
     WHERE r.MEMBER_ID = #{memberId}
     AND TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD') = #{request.date}
     <if test="request.category != null and request.category != ''">
-      AND p.CATEGORY = #{request.category}
+      AND p.CATEGORY_MAIN = #{request.category}
     </if>
     <if test="request.cursor != null">
       AND r.ID &lt; #{request.cursor}
