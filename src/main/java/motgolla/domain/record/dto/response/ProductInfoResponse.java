@@ -24,8 +24,8 @@ public class ProductInfoResponse {
 
   public ProductInfoResponse(ProductToBarcodeScanDto productToBarcodeScanDto) {
     this.brand = productToBarcodeScanDto.getBrand();
-    this.productId = productToBarcodeScanDto.getProductId();
-    this.productName = productToBarcodeScanDto.getProductName();
-    this.productNumber = productToBarcodeScanDto.getProductNumber();
+    this.productId = productToBarcodeScanDto.getProduct_id();
+    this.productName = productToBarcodeScanDto.getProduct_name();
+    this.productNumber = productToBarcodeScanDto.getProduct_number();
   }
 }

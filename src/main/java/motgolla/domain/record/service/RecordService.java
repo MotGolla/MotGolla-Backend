@@ -12,7 +12,7 @@ public interface RecordService {
 
   void registerRecord(RecordRegisterRequest recordRegisterRequest, Long memberId);
 
-  ProductToBarcodeScanDto confirmProductByBarcode(String barcode);
+  ProductToBarcodeScanDto confirmProductByBarcode(String barcode, Long departmentStoreId);
 
   RecordDetailResponse getRecordDetail(Long recordId);
 

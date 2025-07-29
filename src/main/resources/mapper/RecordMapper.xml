@@ -16,13 +16,17 @@
     resultType="motgolla.domain.record.dto.ProductToBarcodeScanDto">
     SELECT
     B.BRAND_NAME AS brand,
-    P.ID AS productId,
-    P.NAME AS productName,
-    P.PRODUCT_NUMBER AS productNumber
+    P.ID AS product_id,
+    P.NAME AS product_name,
+    P.PRODUCT_NUMBER AS product_number
     FROM PRODUCT P
     JOIN BRAND B ON P.BRAND_ID = B.ID
+    JOIN DEPARTMENT_STORE_BRAND DSB ON B.ID = DSB.BRAND_ID
     WHERE P.BARCODE_NUMBER = #{barcode}
+    AND DSB.DEPARTMENT_STORE_ID = #{departmentStoreId}
+    FETCH FIRST 1 ROWS ONLY
   </select>
+
 
   <select id="findDepartmentStoreBrand"
     resultType="java.lang.Long">
@@ -50,11 +54,11 @@
     ) VALUES (
     #{request.id},
     #{memberId},
-    #{departmentStoreBrandId},
-    #{request.productId},
+    #{request.department_store_brand_id},
+    #{request.product_id},
     'AVAILABLE',
-    #{request.productSize},
-    #{request.noteSummary},
+    #{request.product_size},
+    #{request.note_summary},
     SYSDATE,
     #{memberId}
     )

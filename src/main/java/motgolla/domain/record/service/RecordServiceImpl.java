@@ -35,16 +35,8 @@ public class RecordServiceImpl implements RecordService {
   @Override
   public void registerRecord(RecordRegisterRequest recordRegisterRequest, Long memberId) {
 
-    // 백화점 ID
-    Long departmentStoreId = recordMapper.findDepartmentStoreByName(
-        recordRegisterRequest.getDepartmentStore());
-
-    // 백화점과 브랜드를 포함하는 테이블 ID
-    Long brandDepartmentStoreId = recordMapper.findDepartmentStoreBrand(
-        recordRegisterRequest.getBrandName(), departmentStoreId);
-
     // 상품 기록 등록
-    recordMapper.insertRecord(recordRegisterRequest, memberId, brandDepartmentStoreId);
+    recordMapper.insertRecord(recordRegisterRequest, memberId);
 
     // 상품 이미지 테이블에 이미지 정보 등록
     String uploadImgUrl = "";
@@ -70,9 +62,9 @@ public class RecordServiceImpl implements RecordService {
   }
 
   @Override
-  public ProductToBarcodeScanDto confirmProductByBarcode(String barcodeNumber) {
+  public ProductToBarcodeScanDto confirmProductByBarcode(String barcodeNumber, Long departmentStoreId) {
     Optional<ProductToBarcodeScanDto> barcodeScanInfo = recordMapper.findBarcodeScanInfo(
-        barcodeNumber);
+        barcodeNumber, departmentStoreId);
     barcodeScanInfo.orElseThrow(() -> new BusinessException(
         ErrorCode.BARCODE_INFO_NOT_FOUND
     ));
