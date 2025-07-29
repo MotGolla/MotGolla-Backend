@@ -28,6 +28,7 @@ jobs:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       SWAGGER_SERVER: ${{ secrets.SWAGGER_SERVER }}
       RECOMMEND_API_KEY: ${{secrets.RECOMMEND_API_KEY}}
+      GOOGLE_SERVICES: ${{secrets.GOOGLE_SERVICES}}
     permissions:
       contents: read # 리포지토리 콘텐츠에 대한 읽기 권한 부여
 
@@ -47,6 +48,11 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew # gradlew 스크립트 실행 권한 부여
+
+      - name: Create Firebase serviceAccountKey.json
+        run: |
+            mkdir -p src/main/resources/firebase
+            echo '${{ secrets.GOOGLE_SERVICES }}' > src/main/resources/firebase/serviceAccountKey.json
 
       - name: Build with Gradle
         run: ./gradlew build -x test # Gradle 빌드 실행 (테스트 제외)
