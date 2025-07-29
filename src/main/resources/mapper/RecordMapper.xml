@@ -89,7 +89,7 @@
     ri.IMAGE_URL                    AS img_url,
     p.NAME                          AS product_name,
     b.BRAND_NAME                    AS brand_name,
-    CONCAT(dsb.FLOOR, 'F')          AS brand_floor,
+    BRAND_LOCATION_INFO         AS brand_floor,
     TO_CHAR(p.PRICE, 'FM999,999,999') || '원' AS product_price
     FROM RECORD r
     JOIN PRODUCT p ON r.PRODUCT_ID = p.ID
