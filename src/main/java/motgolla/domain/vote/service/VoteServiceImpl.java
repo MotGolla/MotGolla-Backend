@@ -8,6 +8,9 @@ import motgolla.domain.vote.mapper.VoteMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +51,9 @@ public class VoteServiceImpl implements VoteService {
             VoteDetailResponse response = new VoteDetailResponse();
             response.setVoteGroupId(first.getVoteGroupId());
             response.setTitle(first.getVoteTitle());
+            response.setNickname(first.getNickname());
+            response.setProfileImage(first.getProfileImage());
+            response.setTimeAgo(calculateTimeAgo(first.getCreatedAt()));
             response.setMine(first.isMine());
             response.setVotedByMe(first.isVotedByMe());
 
@@ -75,6 +81,28 @@ public class VoteServiceImpl implements VoteService {
     @Override
     public void vote(Long memberId, Long voteGroupId, Long voteCandidateId) {
         voteMapper.insertVote(memberId, voteGroupId, voteCandidateId);
+    }
+
+    private static String calculateTimeAgo(LocalDateTime createdAt) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(createdAt, now);
+
+        long minutes = duration.toMinutes();
+        long hours = duration.toHours();
+        long days = duration.toDays();
+
+        if (minutes < 1) {
+            return "방금 전";
+        } else if (minutes < 60) {
+            return minutes + "분 전";
+        } else if (hours < 24) {
+            return hours + "시간 전";
+        } else if (days < 7) {
+            return days + "일 전";
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+            return createdAt.format(formatter);
+        }
     }
 }
 
