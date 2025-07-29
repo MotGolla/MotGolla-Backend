@@ -51,6 +51,8 @@ services:
       AWS_REGION: ${AWS_REGION}
       SWAGGER_SERVER: ${SWAGGER_SERVER}
       RECOMMEND_API_KEY: ${RECOMMEND_API_KEY}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
       TNS_ADMIN: /app/wallet
       oracle.net.tns_admin: /app/wallet
       oracle.net.wallet_location: /app/wallet
