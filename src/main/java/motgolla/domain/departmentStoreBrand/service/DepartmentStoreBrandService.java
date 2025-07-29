@@ -1,7 +1,9 @@
 package motgolla.domain.departmentStoreBrand.service;
 
+import motgolla.domain.departmentStoreBrand.dto.response.BrandLocationResponse;
+
 import java.util.List;
 
 public interface DepartmentStoreBrandService {
-    List<String> getBrandLocations(Long departmentStoreId, String brandName);
+    List<BrandLocationResponse> getBrandLocations(Long departmentStoreId, String brandName);
 }

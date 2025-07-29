@@ -1,6 +1,7 @@
 package motgolla.domain.departmentStoreBrand.service;
 
 import lombok.RequiredArgsConstructor;
+import motgolla.domain.departmentStoreBrand.dto.response.BrandLocationResponse;
 import motgolla.domain.departmentStoreBrand.mapper.DepartmentStoreBrandMapper;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ public class DepartmentStoreBrandServiceImpl implements DepartmentStoreBrandServ
     private final DepartmentStoreBrandMapper departmentStoreBrandMapper;
 
     @Override
-    public List<String> getBrandLocations(Long departmentStoreId, String brandName) {
+    public List<BrandLocationResponse> getBrandLocations(Long departmentStoreId, String brandName) {
         return departmentStoreBrandMapper.findBrandLocations(departmentStoreId, brandName);
     }
 }
