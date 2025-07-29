@@ -92,6 +92,8 @@
             m.NAME,
             vc.ID,
             vc.RECORD_ID
+
+        ORDER BY vg.CREATED_AT DESC
     </select>
 
     <insert id="insertVote">
