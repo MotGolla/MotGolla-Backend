@@ -55,6 +55,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/webjars/**",
+        "/actuator/**",
         URL_PREFIX + "/member/develop"
     ));
     private final JwtProvider jwtProvider;
