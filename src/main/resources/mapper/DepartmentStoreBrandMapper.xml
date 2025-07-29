@@ -5,8 +5,10 @@
 
 <mapper namespace="motgolla.domain.departmentStoreBrand.mapper.DepartmentStoreBrandMapper">
 
-    <select id="findBrandLocations" resultType="String">
-        SELECT COALESCE(GENDER, '') || ' ' || BRAND_LOCATION_INFO
+    <select id="findBrandLocations" resultType="motgolla.domain.departmentStoreBrand.dto.response.BrandLocationResponse">
+        SELECT
+        COALESCE(GENDER, '') || ' ' || BRAND_LOCATION_INFO AS location,
+        dsb.ID AS departmentStoreBrandId
         FROM DEPARTMENT_STORE_BRAND dsb
         JOIN BRAND b ON dsb.BRAND_ID = b.ID
         WHERE dsb.DEPARTMENT_STORE_ID = #{departmentStoreId}
