@@ -7,9 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ProductToBarcodeScanDto {
   private String brand;
-  private Long productId;
-  private String productName;
-  private String productNumber;
-
-
+  private Long product_id;
+  private String product_name;
+  private String product_number;
 }

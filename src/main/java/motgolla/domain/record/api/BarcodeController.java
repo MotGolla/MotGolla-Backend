@@ -38,10 +38,13 @@ public class BarcodeController {
           @ApiResponse(responseCode = "500", description = "서버 오류")
       }
   )
-  @GetMapping("/{barcode}/product")
-  public ResponseEntity<?> getProductByBarcode(@PathVariable String barcode) {
-    log.info("getProductByBarcode() :: {}", barcode);
-    ProductToBarcodeScanDto productToBarcodeScanDto = recordService.confirmProductByBarcode(barcode);
-    return ResponseEntity.ok(productToBarcodeScanDto);
+  @GetMapping("/product")
+  public ResponseEntity<?> getProductByBarcode(
+      @RequestParam("barcode") String barcode,
+      @RequestParam("department_store_id") Long departmentStoreId) {
+
+    log.info("getProductByBarcode() :: barcode={}, storeId={}", barcode, departmentStoreId);
+    ProductToBarcodeScanDto dto = recordService.confirmProductByBarcode(barcode, departmentStoreId);
+    return ResponseEntity.ok(dto);
   }
 }
