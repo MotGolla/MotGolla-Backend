@@ -15,28 +15,29 @@ import java.util.List;
 @Configuration
 public class SwaggerConfig {
 
-    @Value("${swagger.server-url}")
-    private String serverUrl;
+  @Value("${swagger.server-url}")
+  private String serverUrl;
 
-    @Bean
-    public OpenAPI openAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("MokGolla API")
-                        .version("v0.0.1")
-                        .description("MokGolla API 명세서입니다."))
-                .servers(List.of(new Server().url(serverUrl).description("스웨거 서버")))
-                .components(new Components()
-                        .addSecuritySchemes("Authorization", customSecurityScheme()))
-                .addSecurityItem(new SecurityRequirement()
-                        .addList("Authorization"));
-    }
+  @Bean
+  public OpenAPI openAPI() {
 
-    private SecurityScheme customSecurityScheme() {
-        return new SecurityScheme()
-                .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .bearerFormat("JWT")
-                .in(SecurityScheme.In.HEADER);
-    }
+    return new OpenAPI()
+        .info(new Info()
+            .title("MokGolla API")
+            .version("v0.0.1")
+            .description("MokGolla API 명세서입니다."))
+        .servers(List.of(new Server().url(serverUrl).description("스웨거 서버")))
+        .components(new Components()
+            .addSecuritySchemes("Authorization", customSecurityScheme()))
+        .addSecurityItem(new SecurityRequirement()
+            .addList("Authorization"));
+  }
+
+  private SecurityScheme customSecurityScheme() {
+    return new SecurityScheme()
+        .type(SecurityScheme.Type.HTTP)
+        .scheme("bearer")
+        .bearerFormat("JWT")
+        .in(SecurityScheme.In.HEADER);
+  }
 }
