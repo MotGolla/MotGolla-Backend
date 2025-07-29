@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="motgolla.domain.departmentStore.mapper.DepartmentStoreMapper">
+    <!-- 위도 경도로부터 가장 가까운 백화점 1개 찾기 -->
+    <select id="findNearestStore" resultType="motgolla.domain.departmentStore.dto.response.DepartmentStoreResponse">
+        SELECT
+        ID,
+        STORE_NAME AS name,
+        LAT,
+        LON,
+        ROUND(
+        6371 * ACOS(
+        COS(#{lat} * 3.141592653589793 / 180) * COS(LAT * 3.141592653589793 / 180) *
+        COS(LON * 3.141592653589793 / 180 - #{lon} * 3.141592653589793 / 180) +
+        SIN(#{lat} * 3.141592653589793 / 180) * SIN(LAT * 3.141592653589793 / 180)
+        ),
+        2
+        ) AS distance
+        FROM DEPARTMENT_STORE
+        ORDER BY distance
+        FETCH FIRST 1 ROWS ONLY
+    </select>
+
+    <select id="findAllStores" resultType="motgolla.domain.departmentStore.dto.response.DepartmentStoreIdResponse">
+        SELECT ID, STORE_NAME FROM DEPARTMENT_STORE
+    </select>
+
+</mapper>

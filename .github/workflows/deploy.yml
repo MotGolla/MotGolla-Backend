@@ -17,11 +17,17 @@ jobs:
       ORACLE_DB_URL: ${{ secrets.ORACLE_DB_URL }}
       ORACLE_DB_USERNAME: ${{ secrets.ORACLE_DB_USERNAME }}
       ORACLE_DB_PASSWORD: ${{ secrets.ORACLE_DB_PASSWORD }}
+      JWT_SECRET: ${{secrets.JWT_SECRET}}
+      JWT_ACCESS_EXPIRATION: ${{secrets.JWT_ACCESS_EXPIRATION}}
+      JWT_REFRESH_EXPIRATION: ${{secrets.JWT_REFRESH_EXPIRATION}}
+      KAKAO_API_KEY: ${{secrets.KAKAO_API_KEY}}
+      OPEN_AI_API_KEY: ${{secrets.OPEN_AI_API_KEY}}
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       SWAGGER_SERVER: ${{ secrets.SWAGGER_SERVER }}
+      RECOMMEND_API_KEY: ${{secrets.RECOMMEND_API_KEY}}
     permissions:
       contents: read # 리포지토리 콘텐츠에 대한 읽기 권한 부여
 
@@ -92,11 +98,17 @@ jobs:
             echo "ORACLE_DB_URL=${{ secrets.ORACLE_DB_URL }}" >> .env
             echo "ORACLE_DB_USERNAME=${{ secrets.ORACLE_DB_USERNAME }}" >> .env
             echo "ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "JWT_ACCESS_EXPIRATION=${{ secrets.JWT_ACCESS_EXPIRATION }}" >> .env
+            echo "JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }}" >> .env
+            echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env
+            echo "OPEN_AI_API_KEY=${{ secrets.OPEN_AI_API_KEY }}" >> .env
             echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
             echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
             echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env
             echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
             echo "SWAGGER_SERVER=${{ secrets.SWAGGER_SERVER }}" >> .env
+            echo "RECOMMEND_API_KEY=${{ secrets.RECOMMEND_API_KEY }}" >> .env
             echo ".env file created."
             # Docker Compose를 사용하여 서비스 배포
             # --pull: 항상 최신 이미지를 풀(pull)해옵니다.

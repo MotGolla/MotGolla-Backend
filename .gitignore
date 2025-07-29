@@ -35,3 +35,13 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### env ###
+local.env
+.env
+*.env
+application.properties
+src/main/resources/wallet/
+
+### firebase SDK ###
+src/main/resources/firebase/serviceAccountKey.json

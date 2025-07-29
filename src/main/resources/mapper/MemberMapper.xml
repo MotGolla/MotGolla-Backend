@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="motgolla.domain.member.mapper.MemberMapper">
+    <!-- 회원 저장 -->
+    <insert id="insertMember">
+        <selectKey keyProperty="request.id" resultType="long" order="BEFORE">
+            SELECT MEMBER_SEQ.NEXTVAL AS id FROM dual
+        </selectKey>
+        INSERT INTO MEMBER (
+            ID,
+            NAME,
+            OAUTH_ID,
+            BIRTHDAY,
+            GENDER,
+            PROFILE,
+            CREATED_AT,
+            CREATED_BY,
+            UPDATED_AT,
+            UPDATED_BY
+        ) VALUES (
+            #{request.id},
+            #{request.name},
+            #{request.oauthId},
+            #{request.birthday},
+            #{request.gender},
+            #{request.profile},
+            SYSDATE,
+            #{request.id},
+            SYSDATE,
+            #{request.id}
+        )
+    </insert>
+
+    <!-- ID로 회원 조회 -->
+    <select id="findById" resultType="motgolla.domain.member.vo.Member" parameterType="long">
+        SELECT
+        ID,
+        NAME,
+        PROFILE,
+        OAUTH_ID,
+        BIRTHDAY,
+        GENDER,
+        PROFILE,
+        CREATED_AT,
+        CREATED_BY,
+        UPDATED_AT,
+        UPDATED_BY,
+        IS_DELETED
+        FROM MEMBER
+        WHERE ID = #{id}
+    </select>
+
+    <!-- OAUTH_ID로 회원 조회 -->
+    <select id="findByOauthId" resultType="motgolla.domain.member.vo.Member" parameterType="string">
+        SELECT
+        ID,
+        NAME,
+        PROFILE,
+        OAUTH_ID,
+        BIRTHDAY,
+        GENDER,
+        PROFILE,
+        CREATED_AT,
+        CREATED_BY,
+        UPDATED_AT,
+        UPDATED_BY,
+        IS_DELETED
+        FROM MEMBER
+        WHERE OAUTH_ID = #{oauthId}
+    </select>
+
+    <!-- 회원 탈퇴 -->
+    <update id="updateIsDeleted" parameterType="long">
+        UPDATE MEMBER
+        SET IS_DELETED = 1, UPDATED_AT = SYSDATE, UPDATED_BY = #{id}
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 회원 재가입 -->
+    <update id="updateIsDeletedFalse">
+        UPDATE MEMBER
+        SET IS_DELETED = 0, UPDATED_AT = SYSDATE
+        WHERE IS_DELETED = 1 AND OAUTH_ID = #{oauthId}
+    </update>
+</mapper>
