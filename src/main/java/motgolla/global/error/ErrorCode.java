@@ -22,7 +22,7 @@ public enum ErrorCode {
     DUPLICATED_MEMBER(400, "MEMBER002", "Duplicated Member"),
 
     /* BARCODE ERROR */
-    BARCODE_INFO_NOT_FOUND(400,"BARCODE001","등록된 상품 정보를 찾을 수 없습니다.\n"
+    BARCODE_INFO_NOT_FOUND(400,"BARCODE001","이 백화점엔 해당 상품정보가 없어요.\n"
         + "상품 바코드를 다시 한 번 확인해 주세요."),
 
     /* OPEN AI ERROR */

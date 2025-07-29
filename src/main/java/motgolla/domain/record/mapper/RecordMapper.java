@@ -18,8 +18,7 @@ public interface RecordMapper {
 
   // memberId == createBy
   void insertRecord(@Param("request") RecordRegisterRequest recordRegisterRequest,
-      @Param("memberId") Long memberId,
-      @Param("departmentStoreBrandId") Long departmentStoreBrandId);
+      @Param("memberId") Long memberId);
 
   // 기록 사진 저장
   void insertRecordImage(@Param("imageUrl") String imageUrl,
@@ -31,7 +30,7 @@ public interface RecordMapper {
   Long findDepartmentStoreByName(@Param("name") String departmentStoreName);
 
   // 바코드로 OCR 정보 찾기
-  Optional<ProductToBarcodeScanDto> findBarcodeScanInfo(@Param("barcode") String barcodeNumber);
+  Optional<ProductToBarcodeScanDto> findBarcodeScanInfo(@Param("barcode") String barcodeNumber,@Param("departmentStoreId") Long departmentStoreId);
 
   // 현재 백화점에 있는 브랜드 찾기
   Long findDepartmentStoreBrand(@Param("brand") String brandName,
