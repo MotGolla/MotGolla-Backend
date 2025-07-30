@@ -37,45 +37,13 @@ public class VoteServiceImpl implements VoteService {
     @Override
     @Transactional(readOnly = true)
     public List<VoteDetailResponse> getVotes(Long memberId, String type) {
-        List<VoteDetailDto> raws = voteMapper.findVoteDetails(memberId, type);
-
-        Map<Long, List<VoteDetailDto>> grouped = raws.stream()
-                .collect(Collectors.groupingBy(VoteDetailDto::getVoteGroupId));
-
-        List<VoteDetailResponse> responses = new ArrayList<>();
-
-        for (Map.Entry<Long, List<VoteDetailDto>> entry : grouped.entrySet()) {
-            List<VoteDetailDto> list = entry.getValue();
-            VoteDetailDto first = list.get(0);
-
-            VoteDetailResponse response = new VoteDetailResponse();
-            response.setVoteGroupId(first.getVoteGroupId());
-            response.setTitle(first.getVoteTitle());
-            response.setMine(first.isMine());
-            response.setVotedByMe(first.isVotedByMe());
-            response.setTimeAgo(calculateTimeAgo(first.getCreatedAt()));
-            response.setNickname(first.getNickname());
-            response.setProfileImage(first.getProfileImage());
-
-            List<VoteDetailResponse.CandidateResult> candidates = list.stream().map(r -> {
-                Integer percent = (r.isMine() || r.isVotedByMe()) && r.getTotalVotes() > 0
-                        ? (int) Math.round(r.getVoteCount() * 100.0 / r.getTotalVotes())
-                        : null;
-                return new VoteDetailResponse.CandidateResult(
-                        r.getCandidateId(),
-                        r.getRecordId(),
-                        r.getVoteCount(),
-                        r.getTotalVotes(),
-                        percent,
-                        r.getImageUrl()
-                );
-            }).collect(Collectors.toList());
-
-            response.setCandidates(candidates);
-            responses.add(response);
+        List<VoteDetailResponse> response = voteMapper.findVoteDetails(memberId, type);
+        for (VoteDetailResponse vote : response) {
+            String formatted = calculateTimeAgo(vote.getCreatedAt());
+            vote.setTimeAgo(formatted);
         }
 
-        return responses;
+        return response;
     }
 
     @Override
