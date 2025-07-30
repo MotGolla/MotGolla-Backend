@@ -27,24 +27,28 @@
         WHERE ID = #{id}
     </select>
 
-
     <select id="findRecommendationsByProductId" resultType="motgolla.domain.recommend.dto.response.RecommendedProduct">
-        SELECT *
-        FROM (
         SELECT
         P.ID,
         P.NAME,
         P.IMAGE_URL AS imageUrl,
-        B.BRAND_NAME AS BRAND,
-        DSB.FLOOR,
+        B.BRAND_NAME AS brand,
+        MAX(DSB.FLOOR) AS floor,
         P.PRICE
-        FROM PRODUCT P
-        LEFT JOIN BRAND B ON P.BRAND_ID = B.ID
-        LEFT JOIN DEPARTMENT_STORE_BRAND DSB ON P.BRAND_ID = DSB.BRAND_ID
-        LEFT JOIN RECOMMEND_RESULT R ON P.ID = R.TARGET_ID
+        FROM (
+        SELECT TARGET_ID
+        FROM (
+        SELECT R.TARGET_ID
+        FROM RECOMMEND_RESULT R
         WHERE R.SOURCE_ID = #{productId}
         ORDER BY DBMS_RANDOM.VALUE
         )
         WHERE ROWNUM &lt;= 5
+        ) RR
+        JOIN PRODUCT P ON RR.TARGET_ID = P.ID
+        JOIN BRAND B ON P.BRAND_ID = B.ID
+        LEFT JOIN DEPARTMENT_STORE_BRAND DSB
+        ON P.BRAND_ID = DSB.BRAND_ID AND DSB.DEPARTMENT_STORE_ID = #{departmentStoreId}
+        GROUP BY P.ID, P.NAME, P.IMAGE_URL, B.BRAND_NAME, P.PRICE
     </select>
 </mapper>
