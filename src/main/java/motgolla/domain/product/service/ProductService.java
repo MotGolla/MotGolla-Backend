@@ -5,5 +5,5 @@ import java.util.List;
 import motgolla.domain.recommend.dto.response.RecommendedProduct;
 
 public interface ProductService {
-	List<RecommendedProduct> findRecommendationsByProductId(Long productId);
+	List<RecommendedProduct> findRecommendationsByProductId(Long productId, Long departmentStoreId);
 }
