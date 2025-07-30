@@ -13,6 +13,7 @@ public class VoteDetailResponse {
     private String title;
     private String profileImage;
     private String nickname;
+    private LocalDateTime createdAt;
     private String timeAgo;
     private boolean mine;
     private boolean votedByMe;
