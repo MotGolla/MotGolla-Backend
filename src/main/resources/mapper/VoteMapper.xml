@@ -29,69 +29,102 @@
         )
     </insert>
 
-    <select id="findVoteDetails" resultType="motgolla.domain.vote.dto.VoteDetailDto">
+    <resultMap id="VoteDetailResultMap" type="motgolla.domain.vote.dto.response.VoteDetailResponse">
+        <id property="voteGroupId" column="vote_group_id"/>
+        <result property="title" column="title"/>
+        <result property="profileImage" column="profile_image"/>
+        <result property="nickname" column="nickname"/>
+        <result property="mine" column="mine"/>
+        <result property="votedByMe" column="voted_by_me"/>
+        <result property="createdAt" column="created_at"/>
+
+        <collection property="candidates" ofType="motgolla.domain.vote.dto.response.VoteDetailResponse$CandidateResult">
+            <id property="candidateId" column="candidate_id"/>
+            <result property="recordId" column="record_id"/>
+            <result property="voteCount" column="vote_count"/>
+            <result property="totalVotes" column="total_votes"/>
+            <result property="percentage" column="percentage"/>
+            <result property="imageUrl" column="image_url"/>
+        </collection>
+    </resultMap>
+    <select id="findVoteDetails" resultMap="VoteDetailResultMap">
         SELECT
-            vg.ID AS voteGroupId,
-            vg.TITLE AS voteTitle,
-            vg.CREATED_AT AS createdAt,
-            m.PROFILE AS profileImage,
+            -- 투표 그룹 정보
+            vg.ID AS vote_group_id,
+            vg.TITLE AS title,
+            m.PROFILE AS profile_image,
             m.NAME AS nickname,
+            vg.CREATED_AT AS created_at,
+            CASE WHEN vg.MEMBER_ID = #{memberId} THEN 1 ELSE 0 END AS mine,
+            CASE WHEN voted_check.VOTE_GROUP_ID IS NOT NULL THEN 1 ELSE 0 END AS voted_by_me,
 
-            CASE WHEN vg.MEMBER_ID = #{memberId} THEN 1 ELSE 0 END AS isMine,
-            CASE WHEN EXISTS (
-                SELECT 1 FROM PRODUCT_VOTE pv2
-                WHERE pv2.VOTE_GROUP_ID = vg.ID
-                    AND pv2.MEMBER_ID = #{memberId}
-            ) THEN 1 ELSE 0 END AS isVotedByMe,
+            -- 후보 정보
+            vc.ID AS candidate_id,
+            vc.RECORD_ID,
 
-            vc.ID AS candidateId,
-            vc.RECORD_ID AS recordId,
-            COUNT(pv.ID) AS voteCount,
-            (
-                SELECT COUNT(*)
-                FROM PRODUCT_VOTE pv3
-                WHERE pv3.VOTE_GROUP_ID = vg.ID
-            ) AS totalVotes,
+            -- 득표 수: 조건에 따라 표시
+            CASE
+                WHEN voted_check.VOTE_GROUP_ID IS NOT NULL OR vg.MEMBER_ID = #{memberId}
+                THEN NVL(vc_vote.vote_count, 0)
+                ELSE NULL
+            END AS vote_count,
 
-            (
-                SELECT ri.IMAGE_URL
-                FROM RECORD_IMAGE ri
-                WHERE ri.RECORD_ID = vc.RECORD_ID
-                    AND ri.IMAGE_TYPE = 'RECORD'
-                    AND ROWNUM = 1
-            ) AS imageUrl
+            -- 총 투표 수: 조건에 따라 표시
+            CASE
+                WHEN voted_check.VOTE_GROUP_ID IS NOT NULL OR vg.MEMBER_ID = #{memberId}
+                THEN NVL(vg_vote.total_votes, 0)
+                ELSE NULL
+            END AS total_votes,
+
+            -- 퍼센트: 조건에 따라 표시
+            CASE
+                WHEN (voted_check.VOTE_GROUP_ID IS NOT NULL OR vg.MEMBER_ID = #{memberId})
+                    AND NVL(vg_vote.total_votes, 0) > 0
+                THEN ROUND(NVL(vc_vote.vote_count, 0) * 100 / vg_vote.total_votes)
+                ELSE NULL
+            END AS percentage,
+
+            -- 대표 이미지
+            ri.IMAGE_URL AS image_url
 
         FROM VOTE_GROUP vg
-        JOIN VOTE_CANDIDATE vc ON vc.VOTE_GROUP_ID = vg.ID
-        LEFT JOIN PRODUCT_VOTE pv ON pv.VOTE_CANDIDATE_ID = vc.ID
+
+        -- 투표 작성자
         JOIN MEMBER m ON m.ID = vg.MEMBER_ID
 
-        WHERE
-        <choose>
-            <when test="type == 'MINE'">
-                vg.MEMBER_ID = #{memberId}
-            </when>
-            <when test="type == 'VOTED'">
-                EXISTS (
-                SELECT 1 FROM PRODUCT_VOTE pvx
-                WHERE pvx.VOTE_GROUP_ID = vg.ID
-                AND pvx.MEMBER_ID = #{memberId}
-                )
-            </when>
-            <otherwise>
-                1 = 1
-            </otherwise>
-        </choose>
+        -- 후보 목록
+        JOIN VOTE_CANDIDATE vc ON vc.VOTE_GROUP_ID = vg.ID
 
-        GROUP BY
-            vg.ID,
-            vg.TITLE,
-            vg.MEMBER_ID,
-            vg.CREATED_AT,
-            m.PROFILE,
-            m.NAME,
-            vc.ID,
-            vc.RECORD_ID
+        -- 내가 투표한 그룹인지 확인
+        LEFT JOIN (
+            SELECT DISTINCT VOTE_GROUP_ID
+            FROM PRODUCT_VOTE
+            WHERE MEMBER_ID = #{memberId}
+        ) voted_check ON voted_check.VOTE_GROUP_ID = vg.ID
+
+        -- 후보별 투표 수
+        LEFT JOIN (
+            SELECT VOTE_CANDIDATE_ID, COUNT(*) AS vote_count
+            FROM PRODUCT_VOTE
+            GROUP BY VOTE_CANDIDATE_ID
+        ) vc_vote ON vc_vote.VOTE_CANDIDATE_ID = vc.ID
+
+        -- 그룹별 총 투표 수
+        LEFT JOIN (
+            SELECT VOTE_GROUP_ID, COUNT(*) AS total_votes
+            FROM PRODUCT_VOTE
+            GROUP BY VOTE_GROUP_ID
+        ) vg_vote ON vg_vote.VOTE_GROUP_ID = vg.ID
+
+        -- 후보 대표 이미지
+        LEFT JOIN (
+            SELECT RECORD_ID, MIN(IMAGE_URL) AS IMAGE_URL
+            FROM RECORD_IMAGE
+            WHERE IMAGE_TYPE = 'RECORD'
+            GROUP BY RECORD_ID
+        ) ri ON ri.RECORD_ID = vc.RECORD_ID
+
+        ORDER BY vg.CREATED_AT DESC, vc.ID
     </select>
 
     <insert id="insertVote">
