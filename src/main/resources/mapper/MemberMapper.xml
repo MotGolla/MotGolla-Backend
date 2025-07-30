@@ -13,6 +13,8 @@
             ID,
             NAME,
             OAUTH_ID,
+            PASSWORD,
+            MEMBER_TYPE,
             BIRTHDAY,
             GENDER,
             PROFILE,
@@ -24,6 +26,8 @@
             #{request.id},
             #{request.name},
             #{request.oauthId},
+            #{request.password},
+            'NORMAL',
             #{request.birthday},
             #{request.gender},
             #{request.profile},
@@ -34,6 +38,40 @@
         )
     </insert>
 
+    <!-- 소셜 회원 저장 -->
+    <insert id="insertSocialMember">
+        <selectKey keyProperty="request.id" resultType="long" order="BEFORE">
+            SELECT MEMBER_SEQ.NEXTVAL AS id FROM dual
+        </selectKey>
+        INSERT INTO MEMBER (
+        ID,
+        NAME,
+        OAUTH_ID,
+        PASSWORD,
+        MEMBER_TYPE,
+        BIRTHDAY,
+        GENDER,
+        PROFILE,
+        CREATED_AT,
+        CREATED_BY,
+        UPDATED_AT,
+        UPDATED_BY
+        ) VALUES (
+        #{request.id},
+        #{request.name},
+        #{request.oauthId},
+        #{password},
+        #{request.memberType},
+        #{request.birthday},
+        #{request.gender},
+        #{request.profile},
+        SYSDATE,
+        #{request.id},
+        SYSDATE,
+        #{request.id}
+        )
+    </insert>
+
     <!-- ID로 회원 조회 -->
     <select id="findById" resultType="motgolla.domain.member.vo.Member" parameterType="long">
         SELECT
@@ -41,6 +79,8 @@
         NAME,
         PROFILE,
         OAUTH_ID,
+        PASSWORD,
+        MEMBER_TYPE,
         BIRTHDAY,
         GENDER,
         PROFILE,
@@ -59,7 +99,9 @@
         ID,
         NAME,
         PROFILE,
+        MEMBER_TYPE,
         OAUTH_ID,
+        PASSWORD,
         BIRTHDAY,
         GENDER,
         PROFILE,
@@ -70,6 +112,27 @@
         IS_DELETED
         FROM MEMBER
         WHERE OAUTH_ID = #{oauthId}
+    </select>
+
+    <!-- ID 및 PASSWORD로 회원 조회 -->
+    <select id="findByIdAndPassword" resultType="motgolla.domain.member.vo.Member">
+        SELECT
+        ID,
+        NAME,
+        PROFILE,
+        MEMBER_TYPE,
+        OAUTH_ID,
+        PASSWORD,
+        BIRTHDAY,
+        GENDER,
+        PROFILE,
+        CREATED_AT,
+        CREATED_BY,
+        UPDATED_AT,
+        UPDATED_BY,
+        IS_DELETED
+        FROM MEMBER
+        WHERE OAUTH_ID = #{id} AND PASSWORD = ${password} AND MEMBER_TYPE = 'NORMAL'
     </select>
 
     <!-- 회원 탈퇴 -->

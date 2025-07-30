@@ -2,14 +2,18 @@ package motgolla.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,7 +24,10 @@ import motgolla.global.auth.jwt.JwtAuthenticationExceptionHandler;
 import motgolla.global.auth.jwt.JwtAuthenticationProcessingFilter;
 import motgolla.global.auth.jwt.JwtProvider;
 import motgolla.global.auth.login.CustomAuthenticationProvider;
-import motgolla.global.auth.login.CustomJsonUsernamePasswordAuthenticationFilter;
+import motgolla.global.auth.login.CustomJsonUsernameAuthenticationFilter;
+import motgolla.global.auth.login.CustomSocialLoginAuthenticationFilter;
+import motgolla.global.auth.login.GeneralAuthenticationProvider;
+import motgolla.global.auth.login.GeneralLoginService;
 import motgolla.global.auth.login.LoginFailureHandler;
 import motgolla.global.auth.login.LoginService;
 import motgolla.global.auth.login.LoginSuccessHandler;
@@ -33,12 +40,13 @@ import motgolla.global.util.RedisUtil;
 @Configuration
 public class SecurityConfig {
 
-    public static final String URL_PREFIX = "/api";
-    public static final String LOGIN_URL = URL_PREFIX + "/member/login";
-    public static final String SIGNUP_URL = URL_PREFIX + "/member/sign-up";
+    public static final String LOGIN_URL = "/api/member/login";
+    public static final String SOCIAL_LOGIN_URL = "/api/member/login/kakao";
+    public static final String SIGNUP_URL = "/api/member/sign-up";
     public static final String STATIC_RESOURCE = "/css/**";
 
-    private final LoginService loginService;
+    private final LoginService socialLoginService;
+    private final GeneralLoginService generalLoginService;
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
     private final MemberMapper memberMapper;
@@ -56,35 +64,64 @@ public class SecurityConfig {
                                 LOGIN_URL,
                                 SIGNUP_URL,
                                 STATIC_RESOURCE,
-                                URL_PREFIX + "/member/develop",
+                                SOCIAL_LOGIN_URL,
+                                SOCIAL_LOGIN_URL + "/**",
+                                "/api/member/develop",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-                        .anyRequest().authenticated()); // 나머지 모든 경로 인증 필요
-
-        // LogoutFilter -> JwtAuthenticationExceptionHandler -> JwtAuthenticationProcessingFilter -> CustomJsonUsernamePasswordAuthenticationFilter
-        http.addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class);
-        http.addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthenticationExceptionHandler(), JwtAuthenticationProcessingFilter.class);
-        //http.addFilterBefore(new LogginFilter(), LogoutFilter.class);
+                        .anyRequest().authenticated()) // 나머지 모든 경로 인증 필요
+                .addFilterBefore(jwtAuthenticationExceptionHandler(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(customSocialLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(customJsonUsernameAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     /**
-     * AuthenticationManager 등록
-     * 커스텀한 CustomAuthenticationProvider 사용
-     * UserDetailsService는 커스텀 LoginService로 등록
+     * PasswordEncoder 빈 등록
      */
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * 기본 AuthenticationManager (Spring Security가 사용할 기본 빈)
+     * @Primary 어노테이션으로 기본 빈으로 지정
+     */
+    @Bean
+    @Primary
     public AuthenticationManager authenticationManager() {
-        return new ProviderManager(customAuthenticationProvider());
+        return new ProviderManager(socialAuthenticationProvider());
+    }
+
+    /**
+     * 소셜 로그인용 AuthenticationManager 등록
+     */
+    @Bean("socialAuthenticationManager")
+    public AuthenticationManager socialAuthenticationManager() {
+        return new ProviderManager(socialAuthenticationProvider());
+    }
+
+    /**
+     * 일반 로그인용 AuthenticationManager 등록
+     */
+    @Bean("generalAuthenticationManager")
+    public AuthenticationManager generalAuthenticationManager() {
+        return new ProviderManager(generalAuthenticationProvider());
     }
 
     @Bean
-    public CustomAuthenticationProvider customAuthenticationProvider() {
-        return new CustomAuthenticationProvider(loginService);
+    public CustomAuthenticationProvider socialAuthenticationProvider() {
+        return new CustomAuthenticationProvider(socialLoginService);
+    }
+
+    @Bean
+    public GeneralAuthenticationProvider generalAuthenticationProvider() {
+        return new GeneralAuthenticationProvider(generalLoginService, passwordEncoder());
     }
 
     /**
@@ -96,23 +133,33 @@ public class SecurityConfig {
     }
 
     /**
-     * CustomJsonUsernamePasswordAuthenticationFilter 빈 등록
-     * 커스텀 필터를 사용하기 위해 만든 커스텀 필터를 Bean으로 등록
-     * setAuthenticationManager(authenticationManager())로 위에서 등록한 AuthenticationManager(ProviderManager) 설정
-     * 로그인 성공 시 호출할 handler, 실패 시 호출할 handler로 위에서 등록한 handler 설정
+     * 소셜 로그인용 필터 빈 등록
      */
     @Bean
-    public CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordAuthenticationFilter() {
-        CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordLoginFilter
-                = new CustomJsonUsernamePasswordAuthenticationFilter(objectMapper, memberMapper);
-        customJsonUsernamePasswordLoginFilter.setAuthenticationManager(authenticationManager());
-        customJsonUsernamePasswordLoginFilter.setAuthenticationFailureHandler(loginFailureHandler());
-        customJsonUsernamePasswordLoginFilter.setAuthenticationSuccessHandler(loginSuccessHandler());
-        return customJsonUsernamePasswordLoginFilter;
+    public CustomSocialLoginAuthenticationFilter customSocialLoginAuthenticationFilter() {
+        CustomSocialLoginAuthenticationFilter customSocialLoginFilter
+                = new CustomSocialLoginAuthenticationFilter(objectMapper, memberMapper);
+        customSocialLoginFilter.setAuthenticationManager(socialAuthenticationManager());
+        customSocialLoginFilter.setAuthenticationFailureHandler(loginFailureHandler());
+        customSocialLoginFilter.setAuthenticationSuccessHandler(loginSuccessHandler());
+        return customSocialLoginFilter;
     }
 
     /**
-     * 로그인 성공 시 호출되는 LoginSuccessJWTProviderHandler 빈 등록
+     * 일반 로그인용 필터 빈 등록
+     */
+    @Bean
+    public CustomJsonUsernameAuthenticationFilter customJsonUsernameAuthenticationFilter() {
+        CustomJsonUsernameAuthenticationFilter customJsonUsernameFilter
+                = new CustomJsonUsernameAuthenticationFilter(objectMapper, memberMapper);
+        customJsonUsernameFilter.setAuthenticationManager(generalAuthenticationManager());
+        customJsonUsernameFilter.setAuthenticationFailureHandler(loginFailureHandler());
+        customJsonUsernameFilter.setAuthenticationSuccessHandler(loginSuccessHandler());
+        return customJsonUsernameFilter;
+    }
+
+    /**
+     * 로그인 성공 시 호출되는 LoginSuccessHandler 빈 등록
      */
     @Bean
     public LoginSuccessHandler loginSuccessHandler() {
@@ -128,5 +175,4 @@ public class SecurityConfig {
     public JwtAuthenticationExceptionHandler jwtAuthenticationExceptionHandler() {
         return new JwtAuthenticationExceptionHandler();
     }
-
 }

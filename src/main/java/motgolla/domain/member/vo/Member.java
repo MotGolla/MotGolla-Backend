@@ -19,7 +19,9 @@ public class Member implements UserDetails {
 	private Long id;
 	private String name;
 	private String oauthId;
+	private String password;
 	private String profile;
+    private String memberType;
 	private String birthday;
 	private String gender;
 	private String refreshToken;
@@ -36,8 +38,7 @@ public class Member implements UserDetails {
 
     @Override
     public String getPassword() {
-        // Placeholder: implement as needed
-        return null;
+        return password;
     }
 
 	@Override

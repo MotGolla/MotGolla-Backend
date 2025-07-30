@@ -1,17 +1,15 @@
 package motgolla.domain.member.service;
 
 import java.util.Map;
+import java.util.UUID;
 
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import motgolla.domain.member.dto.request.LoginRequest;
 import motgolla.domain.member.dto.request.SignUpRequest;
-import motgolla.domain.member.dto.response.MemberInfoResponse;
+import motgolla.domain.member.dto.request.SocialSignUpRequest;
 import motgolla.domain.member.dto.response.TokenResponse;
 import motgolla.domain.member.mapper.MemberMapper;
 import motgolla.domain.member.vo.Member;
@@ -21,6 +19,7 @@ import motgolla.global.error.ErrorCode;
 import motgolla.global.error.exception.BusinessException;
 import motgolla.global.util.HashUtil;
 import motgolla.global.util.RedisUtil;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Slf4j
 @Service
@@ -31,6 +30,7 @@ public class MemberServiceImpl implements MemberService {
 	private final JwtProvider jwtProvider;
 	private final OidcService oidcService;
 	private final RedisUtil redisUtil;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
 	public TokenResponse createDevelopAccount(SignUpRequest signUpRequest) {
@@ -42,18 +42,37 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public TokenResponse signUp(SignUpRequest signUpRequest) {
+		log.info("[일반 회원 가입 요청]");
 		// 중복 검사
 		String hashedOauthId = HashUtil.hash(signUpRequest.getOauthId());
 		if(memberMapper.findByOauthId(hashedOauthId).isPresent()){
 			throw new BusinessException(ErrorCode.DUPLICATED_MEMBER);
 		}
 
-		log.info("[회원 가입 요청]");
+		String oauthId = signUpRequest.getOauthId();
+		signUpRequest.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+
+		signUpRequest.setOauthId(HashUtil.hash(oauthId));
+		memberMapper.insertMember(signUpRequest);
+		Long memberId = signUpRequest.getId();
+		return jwtProvider.provideAccessTokenAndRefreshToken(memberId);
+	}
+
+	@Override
+	public TokenResponse socialSignUp(SocialSignUpRequest signUpRequest, String oauthType) {
+		log.info("[카카오 회원 가입 요청]");
+		// 중복 검사
+		String hashedOauthId = HashUtil.hash(signUpRequest.getOauthId());
+		if(memberMapper.findByOauthId(hashedOauthId).isPresent()){
+			throw new BusinessException(ErrorCode.DUPLICATED_MEMBER);
+		}
+
 		Map<String, Object> claims = oidcService.verify(signUpRequest.getIdToken());
 		String oauthId = (String) claims.get("sub");
 		signUpRequest.setOauthId(HashUtil.hash(oauthId));
 
-		memberMapper.insertMember(signUpRequest);
+		String password = passwordEncoder.encode(UUID.randomUUID().toString());
+		memberMapper.insertSocialMember(signUpRequest, password, oauthType);
 		Long memberId = signUpRequest.getId();
 		return jwtProvider.provideAccessTokenAndRefreshToken(memberId);
 	}
