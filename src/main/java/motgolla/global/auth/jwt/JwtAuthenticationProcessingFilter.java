@@ -8,12 +8,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.core.Ordered;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -32,7 +34,7 @@ import motgolla.global.util.RedisUtil;
 
 @Slf4j
 @RequiredArgsConstructor
-public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
+public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter{
 
     /**
      * JWT 인증 필터 - 로그인 이외의 요청을 처리
@@ -45,36 +47,39 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
      */
 
     private static final String REISSUE_TOKEN_URL = "/api/member/reissue";
-    private static final Set<String> NO_CHECK_URL = new HashSet<>(Arrays.asList(
-        LOGIN_URL,
-        SIGNUP_URL,
-        STATIC_RESOURCE,
-        "/swagger-ui/index.html",
-        "/swagger-ui.html",
-        "/v3/api-docs",
-        "/v3/api-docs/**",
-        "/swagger-ui/**",
-        "/webjars/**",
-        URL_PREFIX + "/member/develop"
-    ));
     private final JwtProvider jwtProvider;
     private final MemberMapper memberMapper;
     private final GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
-    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
     private final RedisUtil redisUtil;
+    private static final String[] EXCLUDE_URLS = {
+        SOCIAL_LOGIN_URL,
+        SIGNUP_URL + "/kakao",
+        "/api/member/login",
+        "/api/member/sign-up",
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-resources/**",
+        "/webjars/**"
+    };
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
-        // NO_CHECK_URL에 해당하는 경우 그냥 통과
-        for (String path : NO_CHECK_URL) {
-            if (antPathMatcher.match(path, request.getRequestURI())) {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws
+		ServletException,
+		IOException {
+        for (String path : EXCLUDE_URLS) {
+            if (pathMatcher.match(path, request.getRequestURI())) {
                 filterChain.doFilter(request, response);
                 return;
             }
         }
 
+        log.info("[JWTAuthenticationFilter]");
+        log.info(request.getRequestURI());
         if(request.getRequestURI().equals(REISSUE_TOKEN_URL)) {
+            log.info("[Reissue token found]");
             reissueToken(request, response);
+            return;
         }
         else{
             checkAccessTokenAndAuthentication(request, response, filterChain);
@@ -162,5 +167,4 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         String hashedRefreshToken = HashUtil.hash(refreshToken);
         return redisUtil.get(memberId.toString()).equals(hashedRefreshToken);
     }
-
 }

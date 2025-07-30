@@ -1,15 +1,15 @@
 
 package motgolla.domain.member.dto.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-public class SignUpRequest{
+public class SocialSignUpRequest {
     @Schema(description = "회원 고유 ID (서버에서 내부적으로 사용)", example = "1")
     private Long id;
 
@@ -17,13 +17,9 @@ public class SignUpRequest{
     @NotBlank(message = "oauthId는 필수입니다.")
     private String oauthId;
 
-    @Schema(description = "비밀번호 (영문자와 숫자를 포함한 8~20자)", example = "test1234")
-    @NotBlank(message = "아이디 회원가입은 비밀번호가 필수입니다.")
-    @Pattern(
-        regexp = "^(?=.*[a-zA-Z])(?=.*\\d).{8,20}$",
-        message = "비밀번호는 영문자와 숫자를 포함해 8자 이상 20자 이하이어야 합니다."
-    )
-    private String password;
+    @Schema(description = "카카오 인증 후 받은 ID 토큰", example = "eyJhbGciOiJSUzI1...")
+    @NotBlank(message = "idToken은 필수입니다.")
+    private String idToken;
 
     @Schema(description = "사용자 이름", example = "홍길동")
     @NotBlank(message = "이름은 필수입니다.")
