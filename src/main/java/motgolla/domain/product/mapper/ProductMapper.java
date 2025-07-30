@@ -12,5 +12,8 @@ import java.util.List;
 public interface ProductMapper {
     List<Product> findAllForRecommend();
     boolean existsById(@Param("id") Long id);
-    List<RecommendedProduct> findRecommendationsByProductId(@Param("productId") Long productId);
+    List<RecommendedProduct> findRecommendationsByProductId(
+        @Param("productId") Long productId,
+        @Param("departmentStoreId") Long departmentStoreId);
+
 }
