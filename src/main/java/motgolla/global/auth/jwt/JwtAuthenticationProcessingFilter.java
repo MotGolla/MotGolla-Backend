@@ -56,7 +56,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter{
         SIGNUP_URL + "/kakao",
         "/api/member/login",
         "/api/member/sign-up",
-        "/api/member/reissue",
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/swagger-resources/**",
@@ -75,8 +74,12 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter{
             }
         }
 
+        log.info("[JWTAuthenticationFilter]");
+        log.info(request.getRequestURI());
         if(request.getRequestURI().equals(REISSUE_TOKEN_URL)) {
+            log.info("[Reissue token found]");
             reissueToken(request, response);
+            return;
         }
         else{
             checkAccessTokenAndAuthentication(request, response, filterChain);
