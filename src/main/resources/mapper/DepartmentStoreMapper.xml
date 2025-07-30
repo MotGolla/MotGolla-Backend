@@ -28,4 +28,10 @@
         SELECT ID, STORE_NAME FROM DEPARTMENT_STORE
     </select>
 
+    <select id="existsStore" resultType="boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+        FROM DEPARTMENT_STORE
+        WHERE ID = #{departmentStoreId}
+    </select>
+
 </mapper>
