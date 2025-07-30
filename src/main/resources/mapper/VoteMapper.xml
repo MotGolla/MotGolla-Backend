@@ -124,6 +124,13 @@
             GROUP BY RECORD_ID
         ) ri ON ri.RECORD_ID = vc.RECORD_ID
 
+        <where>
+            <if test="type != null and type == 'MINE'">
+                vg.MEMBER_ID = #{memberId}
+            </if>
+            <!-- ALL일 때는 조건 없음 -->
+        </where>
+
         ORDER BY vg.CREATED_AT DESC, vc.ID
     </select>
 
