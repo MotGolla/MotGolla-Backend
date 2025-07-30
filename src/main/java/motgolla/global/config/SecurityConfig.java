@@ -63,6 +63,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 LOGIN_URL,
                                 SIGNUP_URL,
+                                SIGNUP_URL + "/**",
                                 STATIC_RESOURCE,
                                 SOCIAL_LOGIN_URL,
                                 SOCIAL_LOGIN_URL + "/**",

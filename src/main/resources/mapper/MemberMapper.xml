@@ -61,7 +61,7 @@
         #{request.name},
         #{request.oauthId},
         #{password},
-        #{request.memberType},
+        #{memberType},
         #{request.birthday},
         #{request.gender},
         #{request.profile},

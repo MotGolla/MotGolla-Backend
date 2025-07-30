@@ -53,7 +53,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter{
     private final RedisUtil redisUtil;
     private static final String[] EXCLUDE_URLS = {
         SOCIAL_LOGIN_URL,
-        SIGNUP_URL + "/**",
+        SIGNUP_URL + "/kakao",
         "/api/member/login",
         "/api/member/sign-up",
         "/api/member/reissue",

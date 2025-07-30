@@ -67,12 +67,13 @@ public class MemberServiceImpl implements MemberService {
 			throw new BusinessException(ErrorCode.DUPLICATED_MEMBER);
 		}
 
+
 		Map<String, Object> claims = oidcService.verify(signUpRequest.getIdToken());
 		String oauthId = (String) claims.get("sub");
 		signUpRequest.setOauthId(HashUtil.hash(oauthId));
 
 		String password = passwordEncoder.encode(UUID.randomUUID().toString());
-		memberMapper.insertSocialMember(signUpRequest, password, oauthType);
+		memberMapper.insertSocialMember(signUpRequest, oauthType.toUpperCase(), password);
 		Long memberId = signUpRequest.getId();
 		return jwtProvider.provideAccessTokenAndRefreshToken(memberId);
 	}

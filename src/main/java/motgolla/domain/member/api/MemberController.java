@@ -62,7 +62,7 @@ public class MemberController {
 	@Operation(summary = "회원가입", description = "소셜 로그인 후 회원가입을 진행")
 	public ResponseEntity<TokenResponse> socialSignUp(
 		@RequestBody SocialSignUpRequest signUpRequest,
-		@PathVariable String oauthType) {
+		@PathVariable("oauthType") String oauthType) {
 		TokenResponse response = memberService.socialSignUp(signUpRequest, oauthType);
 		return ResponseEntity.ok().body(response);
 	}
