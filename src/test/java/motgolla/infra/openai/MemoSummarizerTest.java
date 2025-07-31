@@ -122,6 +122,7 @@ class MemoSummarizerProductImpressionTest {
     assertThat(result).doesNotContain("씨").doesNotContain("ㅈ같");
   }
 
+
   @Test
   @DisplayName("약한 비속어 표현도 순화해 정리한다")
   void summarizeMemoWithLightProfanity() {
@@ -132,4 +133,71 @@ class MemoSummarizerProductImpressionTest {
     assertThat(result).doesNotContain("존");
   }
 
+  @Test
+  @DisplayName("질문형 가격 문의는 답변하지 않고 요약한다")
+  void summarizeQuestionAboutPrice() {
+    String sttMemo = "이거 얼마지?";
+    String result = memoSummarizer.analyze(sttMemo);
+    System.out.println("💬 가격 질문 요약: " + result);
+
+    assertThat(result)
+        .containsAnyOf("?");
+  }
+
+  @Test
+  @DisplayName("재입고 질문은 답변하지 않고 궁금한 상태로 요약한다")
+  void summarizeQuestionAboutRestock() {
+    String sttMemo = "이거 언제 다시 나오지?";
+    String result = memoSummarizer.analyze(sttMemo);
+    System.out.println("💬 재입고 질문 요약: " + result);
+
+    assertThat(result)
+        .doesNotContain("나올 거예요", "언제 나옵니다");
+  }
+
+  @Test
+  @DisplayName("위치 질문은 대답하지 않고 회상 형태로 정리한다")
+  void summarizeQuestionAboutPlace() {
+    String sttMemo = "이거 어디서 샀더라?";
+    String result = memoSummarizer.analyze(sttMemo);
+    System.out.println("💬 장소 질문 요약: " + result);
+
+    assertThat(result)
+        .doesNotContain("홍대", "OO에서 샀어요"); // 임의 답변 방지
+  }
+
+  @Test
+  @DisplayName("제품명 질문은 회상 메모로 정리한다")
+  void summarizeQuestionAboutProductName() {
+    String sttMemo = "이거 뭐였지?";
+    String result = memoSummarizer.analyze(sttMemo);
+    System.out.println("💬 제품명 질문 요약: " + result);
+
+    assertThat(result)
+        .doesNotContain("이건 OOO예요", "제품명은"); // 응답 방지
+
+  }
+
+  @Test
+  @DisplayName("추천 요청 질문도 답변하지 않고 요약")
+  void summarizeRecommendationQuestion() {
+    String sttMemo = "나 오늘 빨간색 옷을 구매할건데 이거 추천좀?";
+    String result = memoSummarizer.analyze(sttMemo);
+    System.out.println("📝 추천 질문 요약: " + result);
+
+    assertThat(result)
+        .containsAnyOf("빨간색");
+
+  }
+
+  @Test
+  @DisplayName("저녁 메뉴 추천")
+  void summarizeRecommendationDiQuestion() {
+    String sttMemo = "나 오늘 저녁에 뭐먹을지 추천좀?";
+    String result = memoSummarizer.analyze(sttMemo);
+    System.out.println("📝 추천 질문 요약: " + result);
+
+    assertThat(result)
+        .containsAnyOf("저녁");
+  }
 }
