@@ -9,7 +9,7 @@ public class RecommendedProduct{
 	private Long id;
 	private String name;
 	private String brand;
-	private int floor;
+	private String floor;
 	private int price;
 	private String imageUrl;
 }

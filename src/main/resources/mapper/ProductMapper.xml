@@ -33,7 +33,7 @@
         P.NAME,
         P.IMAGE_URL AS imageUrl,
         B.BRAND_NAME AS brand,
-        MAX(DSB.FLOOR) AS floor,
+        MAX(DSB.BRAND_LOCATION_INFO) AS floor,
         P.PRICE
         FROM (
         SELECT TARGET_ID
