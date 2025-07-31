@@ -56,6 +56,8 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter{
         SIGNUP_URL + "/kakao",
         "/api/member/login",
         "/api/member/sign-up",
+        "/api/actuator/health",
+        "/actuator/health",
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/swagger-resources/**",

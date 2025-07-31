@@ -67,6 +67,8 @@ public class SecurityConfig {
                     STATIC_RESOURCE,
                     SOCIAL_LOGIN_URL,
                     SOCIAL_LOGIN_URL + "/**",
+                    "/api/actuator/health",
+                    "/actuator/health",
                     "/api/member/develop",
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
